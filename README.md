@@ -8,3 +8,26 @@ Similarly to other shells, it provides a [REPL](https://en.wikipedia.org/wiki/Re
 - [Language](doc/language.md)
 - [Applications](doc/applications.md)
 - [Command Line Interface](doc/interface.md)
+
+## Features to implement
+
+- Shell features:
+  - calling applications
+  - quoting
+  - semicolon operator
+  - globbing
+- Applications:
+  - cd
+  - pwd
+  - ls
+  - cat
+  - echo
+  - head
+  - tail
+  - grep
+
+## DevOps
+
+- Unit tests
+- Code coverage
+- Static analysis
