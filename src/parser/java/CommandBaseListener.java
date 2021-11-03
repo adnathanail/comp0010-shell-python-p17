@@ -46,6 +46,18 @@ public class CommandBaseListener implements CommandListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitArgument(CommandParser.ArgumentContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterQuoted(CommandParser.QuotedContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitQuoted(CommandParser.QuotedContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

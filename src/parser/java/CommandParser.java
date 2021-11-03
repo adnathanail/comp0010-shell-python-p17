@@ -16,12 +16,12 @@ public class CommandParser extends Parser {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		ARGUMENT=1, WHITESPACE=2;
+		UNQUOTED_CONTENT=1, SINGLE_QUOTED=2, BACKQUOTED=3, WHITESPACE=4;
 	public static final int
-		RULE_command = 0, RULE_call = 1, RULE_argument = 2;
+		RULE_command = 0, RULE_call = 1, RULE_argument = 2, RULE_quoted = 3;
 	private static String[] makeRuleNames() {
 		return new String[] {
-			"command", "call", "argument"
+			"command", "call", "argument", "quoted"
 		};
 	}
 	public static final String[] ruleNames = makeRuleNames();
@@ -33,7 +33,7 @@ public class CommandParser extends Parser {
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
-			null, "ARGUMENT", "WHITESPACE"
+			null, "UNQUOTED_CONTENT", "SINGLE_QUOTED", "BACKQUOTED", "WHITESPACE"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -112,9 +112,9 @@ public class CommandParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(6);
+			setState(8);
 			call();
-			setState(7);
+			setState(9);
 			match(EOF);
 			}
 		}
@@ -157,20 +157,20 @@ public class CommandParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(10); 
+			setState(12); 
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			do {
 				{
 				{
-				setState(9);
+				setState(11);
 				argument();
 				}
 				}
-				setState(12); 
+				setState(14); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( _la==ARGUMENT || _la==WHITESPACE );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << UNQUOTED_CONTENT) | (1L << SINGLE_QUOTED) | (1L << BACKQUOTED) | (1L << WHITESPACE))) != 0) );
 			}
 		}
 		catch (RecognitionException re) {
@@ -185,7 +185,10 @@ public class CommandParser extends Parser {
 	}
 
 	public static class ArgumentContext extends ParserRuleContext {
-		public TerminalNode ARGUMENT() { return getToken(CommandParser.ARGUMENT, 0); }
+		public TerminalNode UNQUOTED_CONTENT() { return getToken(CommandParser.UNQUOTED_CONTENT, 0); }
+		public QuotedContext quoted() {
+			return getRuleContext(QuotedContext.class,0);
+		}
 		public List<TerminalNode> WHITESPACE() { return getTokens(CommandParser.WHITESPACE); }
 		public TerminalNode WHITESPACE(int i) {
 			return getToken(CommandParser.WHITESPACE, i);
@@ -212,37 +215,101 @@ public class CommandParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(17);
+			setState(19);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==WHITESPACE) {
 				{
 				{
-				setState(14);
+				setState(16);
 				match(WHITESPACE);
 				}
 				}
-				setState(19);
+				setState(21);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(20);
-			match(ARGUMENT);
 			setState(24);
 			_errHandler.sync(this);
-			_alt = getInterpreter().adaptivePredict(_input,2,_ctx);
+			switch (_input.LA(1)) {
+			case UNQUOTED_CONTENT:
+				{
+				setState(22);
+				match(UNQUOTED_CONTENT);
+				}
+				break;
+			case SINGLE_QUOTED:
+			case BACKQUOTED:
+				{
+				setState(23);
+				quoted();
+				}
+				break;
+			default:
+				throw new NoViableAltException(this);
+			}
+			setState(29);
+			_errHandler.sync(this);
+			_alt = getInterpreter().adaptivePredict(_input,3,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
-					setState(21);
+					setState(26);
 					match(WHITESPACE);
 					}
 					} 
 				}
-				setState(26);
+				setState(31);
 				_errHandler.sync(this);
-				_alt = getInterpreter().adaptivePredict(_input,2,_ctx);
+				_alt = getInterpreter().adaptivePredict(_input,3,_ctx);
+			}
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class QuotedContext extends ParserRuleContext {
+		public TerminalNode SINGLE_QUOTED() { return getToken(CommandParser.SINGLE_QUOTED, 0); }
+		public TerminalNode BACKQUOTED() { return getToken(CommandParser.BACKQUOTED, 0); }
+		public QuotedContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_quoted; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof CommandListener ) ((CommandListener)listener).enterQuoted(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof CommandListener ) ((CommandListener)listener).exitQuoted(this);
+		}
+	}
+
+	public final QuotedContext quoted() throws RecognitionException {
+		QuotedContext _localctx = new QuotedContext(_ctx, getState());
+		enterRule(_localctx, 6, RULE_quoted);
+		int _la;
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(32);
+			_la = _input.LA(1);
+			if ( !(_la==SINGLE_QUOTED || _la==BACKQUOTED) ) {
+			_errHandler.recoverInline(this);
+			}
+			else {
+				if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+				_errHandler.reportMatch(this);
+				consume();
 			}
 			}
 		}
@@ -258,15 +325,17 @@ public class CommandParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\4\36\4\2\t\2\4\3"+
-		"\t\3\4\4\t\4\3\2\3\2\3\2\3\3\6\3\r\n\3\r\3\16\3\16\3\4\7\4\22\n\4\f\4"+
-		"\16\4\25\13\4\3\4\3\4\7\4\31\n\4\f\4\16\4\34\13\4\3\4\2\2\5\2\4\6\2\2"+
-		"\2\35\2\b\3\2\2\2\4\f\3\2\2\2\6\23\3\2\2\2\b\t\5\4\3\2\t\n\7\2\2\3\n\3"+
-		"\3\2\2\2\13\r\5\6\4\2\f\13\3\2\2\2\r\16\3\2\2\2\16\f\3\2\2\2\16\17\3\2"+
-		"\2\2\17\5\3\2\2\2\20\22\7\4\2\2\21\20\3\2\2\2\22\25\3\2\2\2\23\21\3\2"+
-		"\2\2\23\24\3\2\2\2\24\26\3\2\2\2\25\23\3\2\2\2\26\32\7\3\2\2\27\31\7\4"+
-		"\2\2\30\27\3\2\2\2\31\34\3\2\2\2\32\30\3\2\2\2\32\33\3\2\2\2\33\7\3\2"+
-		"\2\2\34\32\3\2\2\2\5\16\23\32";
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\6%\4\2\t\2\4\3\t"+
+		"\3\4\4\t\4\4\5\t\5\3\2\3\2\3\2\3\3\6\3\17\n\3\r\3\16\3\20\3\4\7\4\24\n"+
+		"\4\f\4\16\4\27\13\4\3\4\3\4\5\4\33\n\4\3\4\7\4\36\n\4\f\4\16\4!\13\4\3"+
+		"\5\3\5\3\5\2\2\6\2\4\6\b\2\3\3\2\4\5\2$\2\n\3\2\2\2\4\16\3\2\2\2\6\25"+
+		"\3\2\2\2\b\"\3\2\2\2\n\13\5\4\3\2\13\f\7\2\2\3\f\3\3\2\2\2\r\17\5\6\4"+
+		"\2\16\r\3\2\2\2\17\20\3\2\2\2\20\16\3\2\2\2\20\21\3\2\2\2\21\5\3\2\2\2"+
+		"\22\24\7\6\2\2\23\22\3\2\2\2\24\27\3\2\2\2\25\23\3\2\2\2\25\26\3\2\2\2"+
+		"\26\32\3\2\2\2\27\25\3\2\2\2\30\33\7\3\2\2\31\33\5\b\5\2\32\30\3\2\2\2"+
+		"\32\31\3\2\2\2\33\37\3\2\2\2\34\36\7\6\2\2\35\34\3\2\2\2\36!\3\2\2\2\37"+
+		"\35\3\2\2\2\37 \3\2\2\2 \7\3\2\2\2!\37\3\2\2\2\"#\t\2\2\2#\t\3\2\2\2\6"+
+		"\20\25\32\37";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

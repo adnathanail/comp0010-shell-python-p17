@@ -35,5 +35,14 @@ class CommandListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by CommandParser#quoted.
+    def enterQuoted(self, ctx:CommandParser.QuotedContext):
+        pass
+
+    # Exit a parse tree produced by CommandParser#quoted.
+    def exitQuoted(self, ctx:CommandParser.QuotedContext):
+        pass
+
+
 
 del CommandParser
