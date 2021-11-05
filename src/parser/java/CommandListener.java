@@ -27,6 +27,16 @@ public interface CommandListener extends ParseTreeListener {
 	 */
 	void exitCall(CommandParser.CallContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link CommandParser#atom}.
+	 * @param ctx the parse tree
+	 */
+	void enterAtom(CommandParser.AtomContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link CommandParser#atom}.
+	 * @param ctx the parse tree
+	 */
+	void exitAtom(CommandParser.AtomContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link CommandParser#argument}.
 	 * @param ctx the parse tree
 	 */
@@ -36,6 +46,16 @@ public interface CommandListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitArgument(CommandParser.ArgumentContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link CommandParser#redirection}.
+	 * @param ctx the parse tree
+	 */
+	void enterRedirection(CommandParser.RedirectionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link CommandParser#redirection}.
+	 * @param ctx the parse tree
+	 */
+	void exitRedirection(CommandParser.RedirectionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link CommandParser#quoted}.
 	 * @param ctx the parse tree

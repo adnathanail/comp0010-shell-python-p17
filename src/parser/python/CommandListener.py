@@ -26,12 +26,30 @@ class CommandListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by CommandParser#atom.
+    def enterAtom(self, ctx:CommandParser.AtomContext):
+        pass
+
+    # Exit a parse tree produced by CommandParser#atom.
+    def exitAtom(self, ctx:CommandParser.AtomContext):
+        pass
+
+
     # Enter a parse tree produced by CommandParser#argument.
     def enterArgument(self, ctx:CommandParser.ArgumentContext):
         pass
 
     # Exit a parse tree produced by CommandParser#argument.
     def exitArgument(self, ctx:CommandParser.ArgumentContext):
+        pass
+
+
+    # Enter a parse tree produced by CommandParser#redirection.
+    def enterRedirection(self, ctx:CommandParser.RedirectionContext):
+        pass
+
+    # Exit a parse tree produced by CommandParser#redirection.
+    def exitRedirection(self, ctx:CommandParser.RedirectionContext):
         pass
 
 

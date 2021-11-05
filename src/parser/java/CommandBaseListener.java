@@ -39,6 +39,18 @@ public class CommandBaseListener implements CommandListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterAtom(CommandParser.AtomContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAtom(CommandParser.AtomContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterArgument(CommandParser.ArgumentContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -46,6 +58,18 @@ public class CommandBaseListener implements CommandListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitArgument(CommandParser.ArgumentContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterRedirection(CommandParser.RedirectionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitRedirection(CommandParser.RedirectionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
