@@ -27,6 +27,18 @@ public class CommandBaseListener implements CommandListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterCommandSeq(CommandParser.CommandSeqContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCommandSeq(CommandParser.CommandSeqContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterCall(CommandParser.CallContext ctx) { }
 	/**
 	 * {@inheritDoc}

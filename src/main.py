@@ -6,45 +6,66 @@ import sys
 
 
 class CustomCommandListener(CommandListener):
+    indent = 0
+
     def enterCommand(self, ctx: CommandParser.CommandContext):
-        print("enterCommand")
+        self.indent += 1
+        print(" " * self.indent, "enterCommand")
 
     def exitCommand(self, ctx: CommandParser.CommandContext):
-        print("exitCommand")
+        self.indent -= 1
+        print(" " * self.indent, "exitCommand")
+
+    def enterCommandSeq(self, ctx: CommandParser.CommandSeqContext):
+        self.indent += 1
+        print(" " * self.indent, "enterCommandSeq")
+
+    def exitCommandSeq(self, ctx: CommandParser.CommandSeqContext):
+        self.indent -= 1
+        print(" " * self.indent, "exitCommandSeq")
 
     def enterCall(self, ctx: CommandParser.CallContext):
-        print("enterCall")
+        self.indent += 1
+        print(" " * self.indent, "enterCall")
 
     def exitCall(self, ctx: CommandParser.CallContext):
-        print("exitCall")
+        self.indent -= 1
+        print(" " * self.indent, "exitCall")
 
     def enterAtom(self, ctx: CommandParser.AtomContext):
-        print("enterAtom")
+        self.indent += 1
+        print(" " * self.indent, "enterAtom")
 
     def exitAtom(self, ctx: CommandParser.AtomContext):
-        print("exitAtom")
+        self.indent -= 1
+        print(" " * self.indent, "exitAtom")
 
     def enterArgument(self, ctx: CommandParser.ArgumentContext):
-        print("enterArgument")
+        self.indent += 1
+        print(" " * self.indent, "enterArgument")
 
     def exitArgument(self, ctx: CommandParser.ArgumentContext):
-        print("exitArgument")
+        self.indent -= 1
+        print(" " * self.indent, "exitArgument")
 
     def enterRedirection(self, ctx: CommandParser.RedirectionContext):
-        print("enterRedirection")
+        self.indent += 1
+        print(" " * self.indent, "enterRedirection")
 
     def exitRedirection(self, ctx: CommandParser.RedirectionContext):
-        print("exitRedirection")
+        self.indent -= 1
+        print(" " * self.indent, "exitRedirection")
 
     def enterQuoted(self, ctx: CommandParser.QuotedContext):
-        print("enterQuoted")
+        self.indent += 1
+        print(" " * self.indent, "enterQuoted")
 
-    # Exit a parse tree produced by CommandParser#quoted.
     def exitQuoted(self, ctx: CommandParser.QuotedContext):
-        print("exitQuoted")
+        self.indent -= 1
+        print(" " * self.indent, "exitQuoted")
 
 
-lexer = CommandLexer(InputStream("echo `hello' world` > input.txt"))
+lexer = CommandLexer(InputStream("echo `hello' world` > input.txt; tes.txt < hi"))
 stream = CommonTokenStream(lexer)
 parser = CommandParser(stream)
 tree = parser.command()

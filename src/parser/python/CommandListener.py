@@ -17,6 +17,15 @@ class CommandListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by CommandParser#commandSeq.
+    def enterCommandSeq(self, ctx:CommandParser.CommandSeqContext):
+        pass
+
+    # Exit a parse tree produced by CommandParser#commandSeq.
+    def exitCommandSeq(self, ctx:CommandParser.CommandSeqContext):
+        pass
+
+
     # Enter a parse tree produced by CommandParser#call.
     def enterCall(self, ctx:CommandParser.CallContext):
         pass

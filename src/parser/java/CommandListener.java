@@ -17,6 +17,16 @@ public interface CommandListener extends ParseTreeListener {
 	 */
 	void exitCommand(CommandParser.CommandContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link CommandParser#commandSeq}.
+	 * @param ctx the parse tree
+	 */
+	void enterCommandSeq(CommandParser.CommandSeqContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link CommandParser#commandSeq}.
+	 * @param ctx the parse tree
+	 */
+	void exitCommandSeq(CommandParser.CommandSeqContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link CommandParser#call}.
 	 * @param ctx the parse tree
 	 */
