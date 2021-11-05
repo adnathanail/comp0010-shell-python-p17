@@ -24,6 +24,14 @@ class CustomCommandListener(CommandListener):
         self.indent -= 1
         print(" " * self.indent, "exitCommandSeq")
 
+    def enterCallPipe(self, ctx: CommandParser.CallPipeContext):
+        self.indent += 1
+        print(" " * self.indent, "enterCallPipe")
+
+    def exitCallPipe(self, ctx: CommandParser.CallPipeContext):
+        self.indent -= 1
+        print(" " * self.indent, "exitCallPipe")
+
     def enterCall(self, ctx: CommandParser.CallContext):
         self.indent += 1
         print(" " * self.indent, "enterCall")
@@ -65,9 +73,11 @@ class CustomCommandListener(CommandListener):
         print(" " * self.indent, "exitQuoted")
 
 
-lexer = CommandLexer(InputStream("echo `hello' world` > input.txt; tes.txt < hi"))
+lexer = CommandLexer(InputStream("echo `hello' world` | grep; tes.txt < hi"))
+print("Lexed")
 stream = CommonTokenStream(lexer)
 parser = CommandParser(stream)
+print("Parsed")
 tree = parser.command()
 printer = CustomCommandListener()
 walker = ParseTreeWalker()

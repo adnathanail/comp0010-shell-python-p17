@@ -18,9 +18,9 @@ WHITESPACE          : ' ' | '\t' ;
  * Parser Rules
  */
 
-command : call commandSeq? EOF ; // | (pipe commandSeq)) EOF ;
+command : ((call callPipe?) commandSeq?) EOF ;
 commandSeq : ';' command commandSeq? ;
-// pipe : (call '|' call) | (pipe '|' call) ;
+callPipe : '|' call callPipe?;
 
 call : WHITESPACE* (redirection WHITESPACE*)* argument (WHITESPACE* atom)* WHITESPACE* ;
 atom : redirection | argument ;

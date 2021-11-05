@@ -26,6 +26,15 @@ class CommandListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by CommandParser#callPipe.
+    def enterCallPipe(self, ctx:CommandParser.CallPipeContext):
+        pass
+
+    # Exit a parse tree produced by CommandParser#callPipe.
+    def exitCallPipe(self, ctx:CommandParser.CallPipeContext):
+        pass
+
+
     # Enter a parse tree produced by CommandParser#call.
     def enterCall(self, ctx:CommandParser.CallContext):
         pass
