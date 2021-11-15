@@ -129,6 +129,12 @@ class CommandParser ( Parser ):
             if hasattr( listener, "exitCommand" ):
                 listener.exitCommand(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitCommand" ):
+                return visitor.visitCommand(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -194,6 +200,12 @@ class CommandParser ( Parser ):
             if hasattr( listener, "exitCommandSeq" ):
                 listener.exitCommandSeq(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitCommandSeq" ):
+                return visitor.visitCommandSeq(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -250,6 +262,12 @@ class CommandParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitCallPipe" ):
                 listener.exitCallPipe(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitCallPipe" ):
+                return visitor.visitCallPipe(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -323,6 +341,12 @@ class CommandParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitCall" ):
                 listener.exitCall(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitCall" ):
+                return visitor.visitCall(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -432,6 +456,12 @@ class CommandParser ( Parser ):
             if hasattr( listener, "exitAtom" ):
                 listener.exitAtom(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitAtom" ):
+                return visitor.visitAtom(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -495,6 +525,12 @@ class CommandParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitArgument" ):
                 listener.exitArgument(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitArgument" ):
+                return visitor.visitArgument(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -567,6 +603,12 @@ class CommandParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitRedirection" ):
                 listener.exitRedirection(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitRedirection" ):
+                return visitor.visitRedirection(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -649,6 +691,12 @@ class CommandParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitQuoted" ):
                 listener.exitQuoted(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitQuoted" ):
+                return visitor.visitQuoted(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
