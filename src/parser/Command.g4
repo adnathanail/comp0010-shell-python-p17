@@ -4,13 +4,17 @@ grammar Command;
  * Lexer Rules
  */
 
-UNQUOTED_CONTENT : (~[ \t\n;|<>])+ ;
+
 
 SINGLE_QUOTED : '\'' (~[\n'])+ '\'' ;
 
+// DOUBLE_QUOTED_CONTENT : (~[\n`"])+ ;
+
 BACKQUOTED : '`' (~[\n`])+ '`' ;
 
-// DOUBLE_QUOTED_CONTENT : (~[\n`"])+ ;
+UNQUOTED_CONTENT : (~[ \t\n;|<>])+ ;
+
+
 
 WHITESPACE          : ' ' | '\t' ;
 
@@ -19,7 +23,7 @@ WHITESPACE          : ' ' | '\t' ;
  */
 
 command : ((call callPipe?) commandSeq?) EOF ;
-commandSeq : ';' command commandSeq? ;
+commandSeq : ';' (call callPipe?) commandSeq? ;
 callPipe : '|' call callPipe?;
 
 call : WHITESPACE* (redirection WHITESPACE*)* argument (WHITESPACE* atom)* WHITESPACE* ;
