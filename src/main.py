@@ -7,7 +7,7 @@ from applications import *
 from evaluator import Evaluator
 
 
-DEBUG = False
+DEBUG = True
 
 
 def run(s):
@@ -19,11 +19,11 @@ def run(s):
         printer = CustomCommandListener()
         walker = ParseTreeWalker()
         walker.walk(printer, tree)
-        print("*" * 50)
-    visitor = Evaluator()
-    tree.accept(visitor)
+        # print("*" * 50)
+    # visitor = Evaluator()
+    # tree.accept(visitor)
 
 
 if __name__ == "__main__":
-    s = input("")
+    s = "echo `ls`"
     run(s)

@@ -6,11 +6,9 @@ grammar Command;
 
 SINGLE_QUOTED : '\'' (~[\n'])+ '\'' ;
 
-BACKQUOTED : '`' (~[\n`])+ '`' ;
+DOUBLE_QUOTED : '"' (~[\n`"])* '"';
 
-DOUBLE_QUOTED : '"' (BACKQUOTED | (~[\n`"])+)* '"';
-
-UNQUOTED_CONTENT : (~[ \t\n;|<>])+ ;
+UNQUOTED_CONTENT : (~[` \t\n;|<>])+ ;
 
 WHITESPACE          : ' ' | '\t' ;
 
@@ -27,4 +25,4 @@ atom : redirection | argument ;
 argument : ( quoted | UNQUOTED_CONTENT )+ ;
 redirection : ('<' WHITESPACE* argument) | '>' WHITESPACE* argument ;
 
-quoted : SINGLE_QUOTED | DOUBLE_QUOTED | BACKQUOTED   ;
+quoted : SINGLE_QUOTED | DOUBLE_QUOTED | '`' call '`' ;
