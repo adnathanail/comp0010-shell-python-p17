@@ -1,6 +1,9 @@
+from typing import List
 from parser.python.CommandParser import CommandParser
 from parser.python.CommandVisitor import CommandVisitor
-from commands import Pipe, Seq, Call
+from commands import Command, Pipe, Seq, Call
+import logging
+from collections import deque
 
 
 class Evaluator(CommandVisitor):
@@ -8,124 +11,86 @@ class Evaluator(CommandVisitor):
         super().__init__()
 
     # Visit a parse tree produced by CommandParser#command.
-    def visitCommand(self, ctx):
-        # Don't do anything with Command
-        print(f"Command: {ctx.getText()}")
-
-        # get contexts
+    def visitCommand(self, ctx) -> Command:
+        logging.debug(f"Command: {ctx.getText()}")
         callCtx = ctx.call()
         pipeCtx = ctx.callPipe()
         seqCtx = ctx.commandSeq()
-
-        # check for call
+        # Converting to proper commands
+        command = Command()
         if callCtx:
-            call = self.visitCall(callCtx)
-            s = call
-
-        # check for pipe
+            command = self.visitCall(callCtx)
         if pipeCtx:
-            pipe = self.visitCallPipe(pipeCtx, call)
-            s = pipe
-
-        # check for sequence
+            command = self.visitCallPipe(pipeCtx, command)
         if seqCtx:
-            seq = None
-            if pipeCtx:
-                seq = Seq([pipe])
-            else:
-                seq = Seq([call])
-            s = self.visitCommandSeq(seqCtx, seq)
-
-        print(s)
-        return s
-        # TODO: change to s.eval() for evaluation
-
-    def visitCommandInSeq(self, ctx):
-        print(f"CommandInSeq: {ctx.getText()}")
-        # get contexts
-        callCtx = ctx.call()
-        pipeCtx = ctx.callPipe()
-        s = None
-        # check for call
-        if callCtx:
-            call = self.visitCall(callCtx)
-            s = call
-
-        # check for pipe
-        if pipeCtx:
-            pipe = self.visitCallPipe(pipeCtx, call)
-            s = pipe
-
-        return s
+            command = Seq(command)
+            self.visitCommandSeq(seqCtx, command)
+        return command
 
     # Visit a parse tree produced by CommandParser#commandSeq.
-    def visitCommandSeq(self, ctx, seqObject):  # FIXME:
-        print(f"CommandSeq: {ctx.getText()}")
-        # add command to commandSequence
-        temp = self.visitCommandInSeq(ctx)
-        print(f"TEMP: {temp}")
-        seqObject.addCommand(temp)
+    def visitCommandSeq(self, ctx, commandSeq: Seq) -> None:
+        logging.debug(f"CommandSeq: {ctx.getText()}")
+        callCtx = ctx.call()
+        pipeCtx = ctx.callPipe()
         seqCtx = ctx.commandSeq()
+        # add subcmd to commandSeq
+        subcmd = None
+        if callCtx:
+            subcmd = self.visitCall(callCtx)
+        if pipeCtx:
+            subcmd = self.visitCallPipe(pipeCtx, subcmd)
+        if subcmd is not None:
+            commandSeq.addCommand(subcmd)
+        # continue traversing seq if there are cmds
         if seqCtx:
-            return self.visitCommandSeq(seqCtx, seqObject)
-        else:
-            return seqObject
+            self.visitCommandSeq(seqCtx, commandSeq)
 
     # Visit a parse tree produced by CommandParser#callPipe.
-    def visitCallPipe(self, ctx, call):
-        print(f"CallPipe: {ctx.getText()}")
-        p_temp = Pipe(call, self.visitCall(ctx.call()))
+    def visitCallPipe(self, ctx, call: Command) -> Pipe:
+        logging.debug(f"CallPipe: {ctx.getText()}")
+        pipe = Pipe(call, self.visitCall(ctx.call()))
         if ctx.callPipe():
-            return self.visitCallPipe(ctx.callPipe(), p_temp)
+            return self.visitCallPipe(ctx.callPipe(), pipe)
         else:
-            return p_temp
+            return pipe
 
     # Visit a parse tree produced by CommandParser#call.
-    def visitCall(self, ctx):  # TODO: handle exceptions
-        print(f"Call: {ctx.getText()}")
+    def visitCall(self, ctx) -> Call:
+        app_name = ctx.argument().getText()
         redirectionCtx = ctx.redirection()
-        argumentCtx = ctx.argument()  # this is application to be called
         atomCtx = ctx.atom()
-        if redirectionCtx:
-            for el in atomCtx:
-                print(f"Redirection: {el.getText()}")
-        if argumentCtx:
-            print(f"Argument: {argumentCtx.getText()}")
-        if atomCtx:
-            for el in atomCtx:
-                print(f"Atom: {el.getText()}")
-        return Call(argumentCtx.getText())
+        # Redirections and arguments
+        args, input, output = [], [], []
+        self.visitRedirection(redirectionCtx, input, output)
+        self.visitAtom(atomCtx, args, input, output)
+        return Call(app_name, args, input, output)
 
     # Visit a parse tree produced by CommandParser#atom.
-    def visitAtom(self, ctx):  # TODO
-        try:
-            print(f"Atom: {ctx.getText()}")
-        except Exception as e:
-            print(e)
-        return self.visitChildren(ctx)
+    def visitAtom(self, ctx, args: List, input: List, output: List):
+        for el in ctx:
+            if el.redirection():
+                inputNew, outputNew = [], []
+                self.visitRedirection(el.redirection(), inputNew, outputNew)
+                input.extend(inputNew)
+                output.extend(outputNew)
+            else:
+                args.append(self.visitArgument(el.argument()))
 
     # Visit a parse tree produced by CommandParser#argument.
-    def visitArgument(self, ctx):  # TODO
-        # app = self.app_factory.create(ctx.getText())
-        # return app
-        try:
-            print(f"Argument: {ctx.getText()}")
-        except Exception as e:
-            print(e)
-        return self.visitChildren(ctx)
+    def visitArgument(self, ctx):
+        return ctx.getText()
 
     # Visit a parse tree produced by CommandParser#redirection.
-    def visitRedirection(self, ctx):  # TODO
-        try:
-            print(f"Redirection: {ctx.getText()}")
-        except Exception as e:
-            print(e)
-        return self.visitChildren(ctx)
+    def visitRedirection(self, ctx, input, output):
+        for redirection in ctx:
+            redText = self.visitArgument(redirection.argument())
+            if redText.startswith("<"):
+                input.append(redText)
+            else:
+                output.append(redText)
 
     # Visit a parse tree produced by CommandParser#quoted.
     def visitQuoted(self, ctx):  # TODO
-        try:
-            print(f"Quoted: {ctx.getText()}")
-        except Exception as e:
-            print(e)
+        # TODO: check if backquoted and perform cmd substitution
+        print(f"Quoted: {ctx.getText()}")
         return self.visitChildren(ctx)

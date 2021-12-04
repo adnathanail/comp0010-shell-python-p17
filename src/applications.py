@@ -1,5 +1,6 @@
 import os
 from typing import List
+import logging
 
 
 class Application:
@@ -20,17 +21,34 @@ class UnsafeWrapper(Application):
         try:
             self._app.exec(args, input, output)
         except Exception as err:
+            logging.debug(err)
             output.append(err.args[0])
 
 
 class Cd(Application):
+    """changes current working directory"""
+
+    def exec(self, args, input, output):
+        path = args[0]
+        cwd = os.getcwd()
+        os.chdir(path)
+        cwd_new = os.getcwd()
+        logging.debug(f"Changed: {cwd} to {cwd_new}")
+
+
+class Cat(Application):
     def exec(self, args, input, output):
         pass
 
 
 class Pwd(Application):
     def exec(self, args, input, output):
-        pass  # os.getcwd()
+        # no args, or input, there may be output
+        cwd = os.getcwd() + "\n"
+        if output:
+            f = open(output[0], "w+")
+            f.write(cwd)
+        return cwd
 
 
 class Ls(Application):
@@ -63,7 +81,8 @@ class Ls(Application):
 
 class Echo(Application):
     def exec(self, args, input, output):
-        print(args)
+        logging.debug(f"Calling echo: {args} \nIn:{input}\nOut:{output}")
+        return " ".join(args)
 
 
 class Head(Application):
@@ -103,6 +122,7 @@ class ApplicationFactory:
 
     applications = {
         "cd": Cd,
+        "cat": Cat,
         "pwd": Pwd,
         "ls": Ls,
         "echo": Echo,
