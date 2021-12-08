@@ -111,7 +111,7 @@ class Evaluator(CommandVisitor):
         # add to args, use cmd substitution where needed
         for el in ctx:
             if el.SINGLE_QUOTED():  # treat as one argument
-                args.append(el.SINGLE_QUOTED()[1:-1])
+                args.append(str(el.SINGLE_QUOTED())[1:-1])
 
             if el.BACKQUOTED():
                 backquotedCmd = str(el.BACKQUOTED())[1:-1]
