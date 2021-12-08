@@ -54,14 +54,13 @@ class CustomCommandListener(CommandListener):
         print(" " * self.indent, "enterArgument")
         if ctx.quoted():
             for el in ctx.quoted():
-                try:
-                    print(" " * (self.indent + 1), f"QUOTED: {el.getText()}")
-                    print(" " * (self.indent + 1), f"TOKENS: {el.getChild(0)}")
+                print(" " * (self.indent + 1), f"QUOTED: {el.getText()}")
+                if el.SINGLE_QUOTED():
                     print(" " * (self.indent + 1), f"SINGLE: {el.SINGLE_QUOTED()}")
+                if el.DOUBLE_QUOTED():
                     print(" " * (self.indent + 1), f"DOUBLE: {el.DOUBLE_QUOTED()}")
+                if el.BACKQUOTED():
                     print(" " * (self.indent + 1), f"BACK: {el.BACKQUOTED()}")
-                except Exception as e:
-                    pass
 
         if len(ctx.UNQUOTED_CONTENT()) > 0:
             print(
