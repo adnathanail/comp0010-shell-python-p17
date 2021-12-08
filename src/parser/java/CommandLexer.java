@@ -16,8 +16,8 @@ public class CommandLexer extends Lexer {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		T__0=1, T__1=2, T__2=3, T__3=4, UNQUOTED_CONTENT=5, SINGLE_QUOTED=6, BACKQUOTED=7, 
-		WHITESPACE=8;
+		T__0=1, T__1=2, T__2=3, T__3=4, SINGLE_QUOTED=5, DOUBLE_QUOTED=6, BACKQUOTED=7, 
+		UNQUOTED_CONTENT=8, WHITESPACE=9;
 	public static String[] channelNames = {
 		"DEFAULT_TOKEN_CHANNEL", "HIDDEN"
 	};
@@ -28,8 +28,8 @@ public class CommandLexer extends Lexer {
 
 	private static String[] makeRuleNames() {
 		return new String[] {
-			"T__0", "T__1", "T__2", "T__3", "UNQUOTED_CONTENT", "SINGLE_QUOTED", 
-			"BACKQUOTED", "WHITESPACE"
+			"T__0", "T__1", "T__2", "T__3", "SINGLE_QUOTED", "DOUBLE_QUOTED", "BACKQUOTED", 
+			"UNQUOTED_CONTENT", "WHITESPACE"
 		};
 	}
 	public static final String[] ruleNames = makeRuleNames();
@@ -42,8 +42,8 @@ public class CommandLexer extends Lexer {
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
-			null, null, null, null, null, "UNQUOTED_CONTENT", "SINGLE_QUOTED", "BACKQUOTED", 
-			"WHITESPACE"
+			null, null, null, null, null, "SINGLE_QUOTED", "DOUBLE_QUOTED", "BACKQUOTED", 
+			"UNQUOTED_CONTENT", "WHITESPACE"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -105,21 +105,25 @@ public class CommandLexer extends Lexer {
 	public ATN getATN() { return _ATN; }
 
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\2\n\62\b\1\4\2\t\2"+
-		"\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\3\2\3\2\3\3\3"+
-		"\3\3\4\3\4\3\5\3\5\3\6\6\6\35\n\6\r\6\16\6\36\3\7\3\7\6\7#\n\7\r\7\16"+
-		"\7$\3\7\3\7\3\b\3\b\6\b+\n\b\r\b\16\b,\3\b\3\b\3\t\3\t\2\2\n\3\3\5\4\7"+
-		"\5\t\6\13\7\r\b\17\t\21\n\3\2\6\7\2\13\f\"\"=>@@~~\4\2\f\f))\4\2\f\fb"+
-		"b\4\2\13\13\"\"\2\64\2\3\3\2\2\2\2\5\3\2\2\2\2\7\3\2\2\2\2\t\3\2\2\2\2"+
-		"\13\3\2\2\2\2\r\3\2\2\2\2\17\3\2\2\2\2\21\3\2\2\2\3\23\3\2\2\2\5\25\3"+
-		"\2\2\2\7\27\3\2\2\2\t\31\3\2\2\2\13\34\3\2\2\2\r \3\2\2\2\17(\3\2\2\2"+
-		"\21\60\3\2\2\2\23\24\7=\2\2\24\4\3\2\2\2\25\26\7~\2\2\26\6\3\2\2\2\27"+
-		"\30\7>\2\2\30\b\3\2\2\2\31\32\7@\2\2\32\n\3\2\2\2\33\35\n\2\2\2\34\33"+
-		"\3\2\2\2\35\36\3\2\2\2\36\34\3\2\2\2\36\37\3\2\2\2\37\f\3\2\2\2 \"\7)"+
-		"\2\2!#\n\3\2\2\"!\3\2\2\2#$\3\2\2\2$\"\3\2\2\2$%\3\2\2\2%&\3\2\2\2&\'"+
-		"\7)\2\2\'\16\3\2\2\2(*\7b\2\2)+\n\4\2\2*)\3\2\2\2+,\3\2\2\2,*\3\2\2\2"+
-		",-\3\2\2\2-.\3\2\2\2./\7b\2\2/\20\3\2\2\2\60\61\t\5\2\2\61\22\3\2\2\2"+
-		"\6\2\36$,\2";
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\2\13B\b\1\4\2\t\2\4"+
+		"\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\3\2\3\2"+
+		"\3\3\3\3\3\4\3\4\3\5\3\5\3\6\3\6\6\6 \n\6\r\6\16\6!\3\6\3\6\3\7\3\7\3"+
+		"\7\6\7)\n\7\r\7\16\7*\7\7-\n\7\f\7\16\7\60\13\7\3\7\3\7\3\b\3\b\6\b\66"+
+		"\n\b\r\b\16\b\67\3\b\3\b\3\t\6\t=\n\t\r\t\16\t>\3\n\3\n\2\2\13\3\3\5\4"+
+		"\7\5\t\6\13\7\r\b\17\t\21\n\23\13\3\2\7\4\2\f\f))\5\2\f\f$$bb\4\2\f\f"+
+		"bb\7\2\13\f\"\"=>@@~~\4\2\13\13\"\"\2G\2\3\3\2\2\2\2\5\3\2\2\2\2\7\3\2"+
+		"\2\2\2\t\3\2\2\2\2\13\3\2\2\2\2\r\3\2\2\2\2\17\3\2\2\2\2\21\3\2\2\2\2"+
+		"\23\3\2\2\2\3\25\3\2\2\2\5\27\3\2\2\2\7\31\3\2\2\2\t\33\3\2\2\2\13\35"+
+		"\3\2\2\2\r%\3\2\2\2\17\63\3\2\2\2\21<\3\2\2\2\23@\3\2\2\2\25\26\7=\2\2"+
+		"\26\4\3\2\2\2\27\30\7~\2\2\30\6\3\2\2\2\31\32\7>\2\2\32\b\3\2\2\2\33\34"+
+		"\7@\2\2\34\n\3\2\2\2\35\37\7)\2\2\36 \n\2\2\2\37\36\3\2\2\2 !\3\2\2\2"+
+		"!\37\3\2\2\2!\"\3\2\2\2\"#\3\2\2\2#$\7)\2\2$\f\3\2\2\2%.\7$\2\2&-\5\17"+
+		"\b\2\')\n\3\2\2(\'\3\2\2\2)*\3\2\2\2*(\3\2\2\2*+\3\2\2\2+-\3\2\2\2,&\3"+
+		"\2\2\2,(\3\2\2\2-\60\3\2\2\2.,\3\2\2\2./\3\2\2\2/\61\3\2\2\2\60.\3\2\2"+
+		"\2\61\62\7$\2\2\62\16\3\2\2\2\63\65\7b\2\2\64\66\n\4\2\2\65\64\3\2\2\2"+
+		"\66\67\3\2\2\2\67\65\3\2\2\2\678\3\2\2\289\3\2\2\29:\7b\2\2:\20\3\2\2"+
+		"\2;=\n\5\2\2<;\3\2\2\2=>\3\2\2\2><\3\2\2\2>?\3\2\2\2?\22\3\2\2\2@A\t\6"+
+		"\2\2A\24\3\2\2\2\t\2!*,.\67>\2";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {
