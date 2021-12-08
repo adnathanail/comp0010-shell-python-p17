@@ -4,8 +4,6 @@ from parser.python.CommandParser import CommandParser
 from parser.python.CommandVisitor import CommandVisitor
 from antlr4 import *
 from commands import Command, Pipe, Seq, Call
-import logging
-from collections import deque
 import re
 
 
@@ -15,7 +13,6 @@ class Evaluator(CommandVisitor):
 
     # Visit a parse tree produced by CommandParser#command.
     def visitCommand(self, ctx) -> Command:
-        logging.debug(f"Command: {ctx.getText()}")
         callCtx = ctx.call()
         pipeCtx = ctx.callPipe()
         seqCtx = ctx.commandSeq()
@@ -91,9 +88,10 @@ class Evaluator(CommandVisitor):
     # Visit a parse tree produced by CommandParser#redirection.
     def visitRedirection(self, ctx, input, output) -> None:
         for redirection in ctx:
+            sign = redirection.getChild(0).getText()
             # DO NOT CHANGE THE LINE BELOW!
             redText = redirection.argument().getText()
-            if redText.startswith("<"):
+            if sign == "<":
                 input.append(redText)
             else:
                 output.append(redText)
@@ -112,7 +110,6 @@ class Evaluator(CommandVisitor):
 
         # add to args, use cmd substitution where needed
         for el in ctx:
-            logging.debug(f"QUOTED: {el.getText()}")
             if el.SINGLE_QUOTED():  # treat as one argument
                 args.append(el.SINGLE_QUOTED()[1:-1])
 
