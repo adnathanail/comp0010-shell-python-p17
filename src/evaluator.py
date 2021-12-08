@@ -1,9 +1,12 @@
 from typing import List
+from parser.python.CommandLexer import CommandLexer
 from parser.python.CommandParser import CommandParser
 from parser.python.CommandVisitor import CommandVisitor
+from antlr4 import *
 from commands import Command, Pipe, Seq, Call
 import logging
 from collections import deque
+import re
 
 
 class Evaluator(CommandVisitor):
@@ -22,14 +25,14 @@ class Evaluator(CommandVisitor):
             command = self.visitCall(callCtx)
         if pipeCtx:
             command = self.visitCallPipe(pipeCtx, command)
+        # treat single call or pipeline as 1-length cmd sequence
+        command = Seq(command)
         if seqCtx:
-            command = Seq(command)
             self.visitCommandSeq(seqCtx, command)
         return command
 
     # Visit a parse tree produced by CommandParser#commandSeq.
     def visitCommandSeq(self, ctx, commandSeq: Seq) -> None:
-        logging.debug(f"CommandSeq: {ctx.getText()}")
         callCtx = ctx.call()
         pipeCtx = ctx.callPipe()
         seqCtx = ctx.commandSeq()
@@ -47,7 +50,6 @@ class Evaluator(CommandVisitor):
 
     # Visit a parse tree produced by CommandParser#callPipe.
     def visitCallPipe(self, ctx, call: Command) -> Pipe:
-        logging.debug(f"CallPipe: {ctx.getText()}")
         pipe = Pipe(call, self.visitCall(ctx.call()))
         if ctx.callPipe():
             return self.visitCallPipe(ctx.callPipe(), pipe)
@@ -74,23 +76,64 @@ class Evaluator(CommandVisitor):
                 input.extend(inputNew)
                 output.extend(outputNew)
             else:
-                args.append(self.visitArgument(el.argument()))
+                # amend args list in visitArgument
+                self.visitArgument(el.argument(), args)
 
     # Visit a parse tree produced by CommandParser#argument.
-    def visitArgument(self, ctx):
-        return ctx.getText()
+    def visitArgument(self, ctx, args: List) -> None:
+        # to be used ONLY with arguments outside redirections
+        quotedCtx = ctx.quoted()
+        if quotedCtx:
+            self.visitQuoted(quotedCtx, args)
+        else:  # UNQUOTED_CONTENT()
+            args.append(ctx.getText())
 
     # Visit a parse tree produced by CommandParser#redirection.
-    def visitRedirection(self, ctx, input, output):
+    def visitRedirection(self, ctx, input, output) -> None:
         for redirection in ctx:
-            redText = self.visitArgument(redirection.argument())
+            # DO NOT CHANGE THE LINE BELOW!
+            redText = redirection.argument().getText()
             if redText.startswith("<"):
                 input.append(redText)
             else:
                 output.append(redText)
 
     # Visit a parse tree produced by CommandParser#quoted.
-    def visitQuoted(self, ctx):  # TODO
-        # TODO: check if backquoted and perform cmd substitution
-        print(f"Quoted: {ctx.getText()}")
-        return self.visitChildren(ctx)
+    def visitQuoted(self, ctx, args) -> None:
+
+        # method to be used ONLY with quoted arguments outside redirections
+        def evaluateSubCmd(s: str):
+            lexer = CommandLexer(InputStream(s))
+            stream = CommonTokenStream(lexer)
+            parser = CommandParser(stream)
+            tree = parser.command()
+            subcmd = tree.accept(Evaluator())  # I will invoke new instance
+            return subcmd.eval()
+
+        # add to args, use cmd substitution where needed
+        for el in ctx:
+            logging.debug(f"QUOTED: {el.getText()}")
+            if el.SINGLE_QUOTED():  # treat as one argument
+                args.append(el.SINGLE_QUOTED()[1:-1])
+
+            if el.BACKQUOTED():
+                backquotedCmd = str(el.BACKQUOTED())[1:-1]
+                new_args = evaluateSubCmd(backquotedCmd)
+                if new_args is not None:
+                    new_args = new_args.split()
+                    args.extend(new_args)
+
+            if el.DOUBLE_QUOTED():
+                # do cmd subs. if needed, then treat as single arg
+                doublequoted = str(el.DOUBLE_QUOTED())[1:-1]
+                # search for backquoted parts
+                matches = re.findall("`[^`]*`", doublequoted)
+                if len(matches) > 0:  # do cmd subs.
+                    for match in matches:
+                        matchCmd = match[1:-1]
+                        new_args = evaluateSubCmd(matchCmd).split()
+                        new_args = " ".join(new_args)
+                        # replace 1st occurence of match with its evaluation
+                        doublequoted = doublequoted.replace(match, new_args, 1)
+                # after substituting potential subcmds, treat as single arg
+                args.append(doublequoted)

@@ -25,10 +25,9 @@ class Pipe(Command):
     def __str__(self):
         return f"Pipe({self.left} | {self.right})"
 
-    def eval(self, input, output):
-        pass
-        # result = self.left.eval()
-        # return self.right.eval(result)
+    def eval(self, input=None, output=None):
+        result = self.left.eval()
+        return self.right.eval(input=result)
 
 
 class Seq(Command):
@@ -45,8 +44,13 @@ class Seq(Command):
         self.commands.append(command)
 
     def eval(self, input=None, output=None):
+        total_output = ""  # only used for cmd subs.
+        # TODO: choose when and how to print the results
         for command in iter(self.commands):
-            command.eval()
+            output = command.eval()
+            if output:
+                total_output += output
+        return total_output
 
 
 class Call(Command):
@@ -64,29 +68,29 @@ class Call(Command):
             f"output={self.output})"
         )
 
-    def eval(self, args, input, output):
+    def eval(self, args=None, input=None, output=None):
         # DEBUGGING
-        logging.debug(f"ARGS   IN EVAL: {args}")
-        logging.debug(f"INPUT  IN EVAL: {input}")
-        logging.debug(f"OUTPUT IN EVAL: {output}\n")
+        logging.debug(f"ARGS   IN EVAL: {self.args}")
+        logging.debug(f"INPUT  IN EVAL: {self.input}")
+        logging.debug(f"OUTPUT IN EVAL: {self.output}\n")
         # expanding filenames (globbing)
-        for i in range(len(args)):
-            if args[i][-1] == "*":
-                files = glob.glob(args[i])
-                args[i] = " ".join(files)
+        # for i in range(len(self.args)):
+        #     if self.args[i][-1] == "*":
+        #         files = glob.glob(self.args[i])
+        #         self.args[i] = " ".join(files)
         # if multiple files specified for I/O
-        if len(input) > 1 or len(output) > 1:
+        if len(self.input) > 1 or len(self.output) > 1:
             raise ValueError("Multiple files specified for I/O")
         # open input file
-        if input:
-            if os.path.isfile(input):
-                inFile = open(input, "r")
-                inp = inFile.readlines()
-                inFile.close()
-            else:
-                raise FileNotFoundError()
-        # open output file
-        if output:
-            outFile = open(output, "w+")
-            outFile.close()
-        return self.app.exec(args, input, output)
+        # if self.input:
+        #     if os.path.isfile(self.input):
+        #         inFile = open(self.input, "r")
+        #         inp = inFile.readlines()
+        #         inFile.close()
+        #     else:
+        #         raise FileNotFoundError()
+        # # open output file
+        # if output:
+        #     outFile = open(self.output, "w+")
+        #     outFile.close()
+        return self.app.exec(self.args, self.input, self.output)
