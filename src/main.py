@@ -8,25 +8,24 @@ from evaluator import Evaluator
 from collections import deque
 import logging
 
-logging.DEBUG = True
+logging.DEBUG = False
 logging.basicConfig(format="%(message)s", level=logging.DEBUG)
-logging.debug("This message should appear on the console")
-
-DEBUG = True
 
 
-def run(s):
-    lexer = CommandLexer(InputStream(s))
+def run(cmdline):
+    lexer = CommandLexer(InputStream(cmdline))
     stream = CommonTokenStream(lexer)
     parser = CommandParser(stream)
     tree = parser.command()
-    # if DEBUG:  # listener runs in DEBUG mode
-    #     printer = CustomCommandListener()
-    #     walker = ParseTreeWalker()
-    #     walker.walk(printer, tree)
-    # print("*" * 50)
-    cmd = tree.accept(Evaluator())
-    print(f"{cmd}")
+    # listener
+    # printer = CustomCommandListener()
+    # walker = ParseTreeWalker()
+    # walker.walk(printer, tree)
+    cmd = tree.accept(Evaluator())  # convert
+    logging.debug(f"{cmd}")
+    out = cmd.eval()  # evaluate
+    if out != "":  # temporal
+        print(out)
 
 
 def run_shell():
@@ -34,11 +33,7 @@ def run_shell():
         print(os.getcwd() + "> ", end="")
         cmdline = input()
         run(cmdline)
-        # while len(out) > 0:
-        #     print(out.popleft(), end="")
 
 
 if __name__ == "__main__":
     run_shell()
-    # s = "echo `ls`"
-    # run(s)
