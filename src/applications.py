@@ -1,3 +1,4 @@
+from io import DEFAULT_BUFFER_SIZE
 import os
 from typing import List
 import logging
@@ -41,7 +42,6 @@ class Cd(Application):
         path = args[0]
         cwd = os.getcwd()
         os.chdir(path)
-        logging.debug(f"Changed: {cwd} to {os.getcwd()}")
 
 
 class Ls(Application):
@@ -72,7 +72,12 @@ class Cat(Application):
     """
 
     def exec(self, args, input, output):
-        pass
+        content = ""
+        for file in args:
+            f = open(file, "r")
+            content += f.read()
+            f.close()
+        return content
 
 
 class Echo(Application):
@@ -81,7 +86,6 @@ class Echo(Application):
     """
 
     def exec(self, args, input, output):
-        logging.debug(f"Calling echo: {args} \nIn:{input}\nOut:{output}")
         return " ".join(args)
 
 
@@ -92,8 +96,30 @@ class Head(Application):
     without raising an exception.
     """
 
+    DEFAULT_NUM_LINES = 10
+
     def exec(self, args, input, output):
-        pass
+        if len(args) == 3:
+            if args[0] != "-n":
+                raise ValueError("wrong flags")
+            else:
+                num_lines = int(args[1])
+                file = args[2]
+        elif len(args) == 1:
+            file = args[0]
+            num_lines = self.DEFAULT_NUM_LINES
+        else:
+            raise ValueError("wrong number of command line arguments")
+        try:
+            content = ""
+            with open(file, "r") as f:
+                content = f.readlines()
+                if len(content) > num_lines:
+                    content = content[:num_lines]  # grab first n lines
+                content = "".join(content)
+            return content
+        except FileNotFoundError:
+            raise FileNotFoundError("Could not find the file")
 
 
 class Tail(Application):
@@ -105,22 +131,28 @@ class Tail(Application):
 
     DEFAULT_NUM_LINES = 10
 
-    def exec(self, args, input, output: List):
+    def exec(self, args, input, output):
         if len(args) == 3:
-            pass
-
-        if len(args) == 1:  # default
-            file = args[-1]
-            try:
-                f = open(file, "r")
-                content = f.readlines()[
-                    -self.DEFAULT_NUM_LINES :
-                ]  # grab last ten lines
-                output.append(content)
-            except FileNotFoundError:
-                raise FileNotFoundError("Could not find the file")
-        else:  # error
-            raise ValueError(f"Wrong number of arguments: {len(args)}")
+            if args[0] != "-n":
+                raise ValueError("wrong flags")
+            else:
+                num_lines = int(args[1])
+                file = args[2]
+        elif len(args) == 1:
+            file = args[0]
+            num_lines = self.DEFAULT_NUM_LINES
+        else:
+            raise ValueError("wrong number of command line arguments")
+        try:
+            content = ""
+            with open(file, "r") as f:
+                content = f.readlines()
+                if len(content) > num_lines:
+                    content = content[-num_lines:]  # grab n last lines
+                content = "".join(content)
+            return content
+        except FileNotFoundError:
+            raise FileNotFoundError("Could not find the file")
 
 
 class Grep(Application):
