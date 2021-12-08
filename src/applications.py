@@ -22,7 +22,7 @@ class UnsafeWrapper(Application):
             self._app.exec(args, input, output)
         except Exception as err:
             logging.debug(err)
-            output.append(err.args[0])
+            return str(err)  # TODO: temporary, waits for I/O
 
 
 class Cd(Application):
