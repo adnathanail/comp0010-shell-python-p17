@@ -1,5 +1,6 @@
 from io import DEFAULT_BUFFER_SIZE
 import os
+from sys import argv
 from typing import List
 import logging
 
@@ -32,7 +33,7 @@ class Pwd(Application):
     def exec(self, args, input, output):
         # no args, or input, there may be output
         cwd = os.getcwd() + "\n"
-        return cwd
+        output.append(cwd)
 
 
 class Cd(Application):
@@ -40,7 +41,6 @@ class Cd(Application):
 
     def exec(self, args, input, output):
         path = args[0]
-        cwd = os.getcwd()
         os.chdir(path)
 
 
@@ -62,8 +62,8 @@ class Ls(Application):
             fname for fname in os.listdir(path) if not (fname.startswith("."))
         ]
         if len(list_of_files) > 0:
-            return "\t".join(list_of_files)
-        return ""
+            output.append("\t".join(list_of_files))
+        output.append("")  # is this needed?
 
 
 class Cat(Application):
@@ -72,12 +72,24 @@ class Cat(Application):
     """
 
     def exec(self, args, input, output):
+        def read_content(filename):
+            s = ""
+            try:
+                with open(filename, "r") as f:
+                    s += f.read()
+            except FileNotFoundError:
+                raise FileNotFoundError("The file has not been found")
+            return s
+
         content = ""
-        for file in args:
-            f = open(file, "r")
-            content += f.read()
-            f.close()
-        return content
+        # Now: treat stdin as a list of files # handle exception
+        # no files specified -> use stdin
+        # TODO: how to use stdin? as unparsed arg, multiple args
+        # or just string to be appended?
+        file_list = args if len(args) > 0 else input
+        for file in file_list:
+            content += read_content(file)
+        output.append(content)
 
 
 class Echo(Application):
@@ -86,7 +98,61 @@ class Echo(Application):
     """
 
     def exec(self, args, input, output):
-        return " ".join(args)
+        string = " ".join(args)
+        string += "\n"
+        output.append(string)
+
+
+class HeadOrTail:
+    DEFAULT_NUM_LINES = 10
+
+    def exec(self, args, input, output, appObject):
+        num_lines, file, use_stdin = self.validate_args(args)
+        first = isinstance(appObject, Head)  # take first n lines, else take last
+        if use_stdin:
+            content = input.split("\n")
+            content = self.grab_lines(content, num_lines, first)
+        else:
+            try:
+                with open(file, "r") as f:
+                    content = f.readlines()
+                    content = self.grab_lines(content, num_lines, first)
+            except FileNotFoundError:
+                raise FileNotFoundError("Could not find the file")
+        content = "".join(content)
+        output.append(content)
+
+    def validate_args(self, args):
+        num_lines, file, use_stdin = None, None, None
+        if len(args) == 3:  # OPTIONS & FILE specified
+            if args[0] != "-n":
+                raise ValueError("wrong flags")
+            else:
+                num_lines = int(args[1])
+                file = args[2]
+        elif len(args) == 2:  # OPTIONS specified, use stdin
+            if args[0] != "-n":
+                raise ValueError("wrong flags")
+            else:
+                num_lines = int(args)
+                use_stdin = True
+        elif len(args) == 1:  # FILE specified
+            num_lines = self.DEFAULT_NUM_LINES
+            file = args[0]
+        else:
+            raise ValueError("wrong number of command line arguments")
+        return (num_lines, file, use_stdin)
+
+    @staticmethod
+    def grab_lines(content, n, first):
+        if n == 0:
+            return [""]
+        if len(content) < n:
+            return content
+        elif first:
+            return content[:n]
+        else:
+            return content[-n:]
 
 
 class Head(Application):
@@ -96,30 +162,8 @@ class Head(Application):
     without raising an exception.
     """
 
-    DEFAULT_NUM_LINES = 10
-
     def exec(self, args, input, output):
-        if len(args) == 3:
-            if args[0] != "-n":
-                raise ValueError("wrong flags")
-            else:
-                num_lines = int(args[1])
-                file = args[2]
-        elif len(args) == 1:
-            file = args[0]
-            num_lines = self.DEFAULT_NUM_LINES
-        else:
-            raise ValueError("wrong number of command line arguments")
-        try:
-            content = ""
-            with open(file, "r") as f:
-                content = f.readlines()
-                if len(content) > num_lines:
-                    content = content[:num_lines]  # grab first n lines
-                content = "".join(content)
-            return content
-        except FileNotFoundError:
-            raise FileNotFoundError("Could not find the file")
+        HeadOrTail().exec(args, input, output, appObject=self)
 
 
 class Tail(Application):
@@ -129,30 +173,8 @@ class Tail(Application):
     without raising an exception.
     """
 
-    DEFAULT_NUM_LINES = 10
-
     def exec(self, args, input, output):
-        if len(args) == 3:
-            if args[0] != "-n":
-                raise ValueError("wrong flags")
-            else:
-                num_lines = int(args[1])
-                file = args[2]
-        elif len(args) == 1:
-            file = args[0]
-            num_lines = self.DEFAULT_NUM_LINES
-        else:
-            raise ValueError("wrong number of command line arguments")
-        try:
-            content = ""
-            with open(file, "r") as f:
-                content = f.readlines()
-                if len(content) > num_lines:
-                    content = content[-num_lines:]  # grab n last lines
-                content = "".join(content)
-            return content
-        except FileNotFoundError:
-            raise FileNotFoundError("Could not find the file")
+        HeadOrTail().exec(args, input, output, appObject=self)
 
 
 class Grep(Application):
@@ -202,7 +224,41 @@ class Sort(Application):
     """
 
     def exec(self, args, input, output):
-        pass
+        use_stdin = False
+        reverse = False
+        if len(args) == 0:
+            use_stdin = True
+        elif len(args) == 1:
+            if args[0] == "-r":
+                reverse = True
+                use_stdin = True
+            else:
+                file = args[0]
+        elif len(args) == 2:
+            option = args[0]
+            if option != "-r":
+                raise ValueError("wrong flags")
+            else:
+                reverse = True
+            file = args[1]
+        try:
+            content = []
+            if use_stdin:
+                if input is not None:
+                    content = input[0].split()
+                    content.sort(reverse=reverse)
+                    content = "\n".join(content)
+                    content += "\n"
+                else:
+                    raise ValueError("No input to a call")
+            else:
+                with open(file, "r") as f:
+                    content = f.readlines()
+                    content.sort(reverse=reverse)
+                    content = "".join(content)
+            output.append(content)
+        except FileNotFoundError:
+            raise FileNotFoundError("File was not found")
 
 
 class ApplicationFactory:

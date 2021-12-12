@@ -1,4 +1,5 @@
 from applications import ApplicationFactory
+from collections import deque
 import glob
 import logging
 import os
@@ -26,8 +27,9 @@ class Pipe(Command):
         return f"Pipe({self.left} | {self.right})"
 
     def eval(self, input=None, output=None):
-        result = self.left.eval()
-        return self.right.eval(input=result)
+        content_list = deque()
+        self.left.eval(input=input, output=content_list)
+        self.right.eval(input=content_list, output=output)
 
 
 class Seq(Command):
@@ -44,53 +46,39 @@ class Seq(Command):
         self.commands.append(command)
 
     def eval(self, input=None, output=None):
-        total_output = ""  # only used for cmd subs.
-        # TODO: choose when and how to print the results
-        for command in iter(self.commands):
-            output = command.eval()
-            if output:
-                total_output += output
-        return total_output
+        print_output = False
+        if output is None:
+            output = deque()
+            print_output = True
+        for command in self.commands:
+            command.eval(output=output)
+            if print_output:
+                while len(output) > 0:
+                    print(output.popleft(), end="")
 
 
 class Call(Command):
-    def __init__(self, app_name, args, input, output):
+    def __init__(self, app_name, args, redirectionIn, redirectionOut):
         self.app = self.app_factory.create(app_name)
         self.args = args
-        self.input = input
-        self.output = output
+        self.redirectionIn = redirectionIn
+        self.redirectionOut = redirectionOut
 
     def __str__(self):
         return (
             f"{str(self.app).capitalize()}"
             f"(args={self.args},"
-            f"input={self.input},"
-            f"output={self.output})"
+            f"redirectionIn={self.redirectionIn},"
+            f"redirectionOut={self.redirectionOut})"
         )
 
     def eval(self, args=None, input=None, output=None):
-        # DEBUGGING
-        logging.debug(f"ARGS   IN EVAL: {self.args}")
-        logging.debug(f"INPUT  IN EVAL: {self.input}")
-        logging.debug(f"OUTPUT IN EVAL: {self.output}\n")
-        # expanding filenames (globbing)
-        # for i in range(len(self.args)):
-        #     if self.args[i][-1] == "*":
-        #         files = glob.glob(self.args[i])
-        #         self.args[i] = " ".join(files)
+        logging.debug(f"ARGS IN EVAL: {self.args}")
+        # TODO: expanding filenames (globbing)
+        # TODO: handle redirections
         # if multiple files specified for I/O
-        if len(self.input) > 1 or len(self.output) > 1:
+        if len(self.redirectionIn) > 1 or len(self.redirectionOut) > 1:
             raise ValueError("Multiple files specified for I/O")
-        # open input file
-        # if self.input:
-        #     if os.path.isfile(self.input):
-        #         inFile = open(self.input, "r")
-        #         inp = inFile.readlines()
-        #         inFile.close()
-        #     else:
-        #         raise FileNotFoundError()
-        # # open output file
-        # if output:
-        #     outFile = open(self.output, "w+")
-        #     outFile.close()
-        return self.app.exec(self.args, self.input, self.output)
+        if args is None:
+            args = self.args
+        self.app.exec(args, input, output)
