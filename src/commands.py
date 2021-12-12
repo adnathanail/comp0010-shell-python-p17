@@ -1,8 +1,16 @@
+from typing import List
 from applications import ApplicationFactory
 from collections import deque
 import glob
 import logging
 import os
+
+
+def dequeToStr(deque: deque):
+    s = ""
+    while len(deque) > 0:
+        s += deque.popleft()
+    return s
 
 
 class Command:
@@ -29,7 +37,8 @@ class Pipe(Command):
     def eval(self, input=None, output=None):
         content_list = deque()
         self.left.eval(input=input, output=content_list)
-        self.right.eval(input=content_list, output=output)
+        new_input = dequeToStr(content_list)
+        self.right.eval(input=new_input, output=output)
 
 
 class Seq(Command):
@@ -58,27 +67,53 @@ class Seq(Command):
 
 
 class Call(Command):
-    def __init__(self, app_name, args, redirectionIn, redirectionOut):
+    def __init__(self, app_name: str, args: List, redirectFrom: List, redirectTo: List):
         self.app = self.app_factory.create(app_name)
         self.args = args
-        self.redirectionIn = redirectionIn
-        self.redirectionOut = redirectionOut
+        if len(redirectFrom) == 0:
+            self.redirectFrom = None
+        elif len(redirectFrom) == 1:
+            self.redirectFrom = redirectFrom[0]
+        else:  # > 0
+            raise ValueError("Multiple files specified for input redirection")
+        if len(redirectTo) == 0:
+            self.redirectTo = None
+        elif len(redirectTo) == 1:
+            self.redirectTo = redirectTo[0]
+        else:
+            raise ValueError("Multiple files specified for output redirection")
 
     def __str__(self):
         return (
             f"{str(self.app).capitalize()}"
             f"(args={self.args},"
-            f"redirectionIn={self.redirectionIn},"
-            f"redirectionOut={self.redirectionOut})"
+            f"redirectFrom={self.redirectFrom},"
+            f"redirectTo={self.redirectTo})"
         )
 
     def eval(self, args=None, input=None, output=None):
         logging.debug(f"ARGS IN EVAL: {self.args}")
         # TODO: expanding filenames (globbing)
-        # TODO: handle redirections
-        # if multiple files specified for I/O
-        if len(self.redirectionIn) > 1 or len(self.redirectionOut) > 1:
-            raise ValueError("Multiple files specified for I/O")
         if args is None:
             args = self.args
+        # Handle input redirections
+        if self.redirectFrom is not None:  # read input from file
+            input = self.readFromFile(self.redirectFrom)
+        # Execute the app
         self.app.exec(args, input, output)
+        # Handle output redirection by writing the output of executed app
+        if self.redirectTo is not None:
+            self.writeToFile(self.redirectTo, output)
+
+    def writeToFile(self, filename, output):
+        with open(filename, "w") as f:  # overwrites existent or creates a new file
+            while len(output) > 0:
+                f.write(output.popleft())
+
+    def readFromFile(self, filename):
+        try:
+            with open(filename, "r") as f:
+                content = f.read()
+                return content
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Could not find the file: {filename}")

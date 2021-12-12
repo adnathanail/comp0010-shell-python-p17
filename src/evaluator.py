@@ -60,17 +60,18 @@ class Evaluator(CommandVisitor):
         redirectionCtx = ctx.redirection()
         atomCtx = ctx.atom()
         # Redirections and arguments
-        args, redirectionIn, redirectionOut = [], [], []
-        self.visitRedirection(redirectionCtx, redirectionIn, redirectionOut)
-        self.visitAtom(atomCtx, args, redirectionIn, redirectionOut)
-        return Call(app_name, args, redirectionIn, redirectionOut)
+        args, redirectFrom, redirectTo = [], [], []
+        for redirection in redirectionCtx:
+            self.visitRedirection(redirection, redirectFrom, redirectTo)
+        self.visitAtom(atomCtx, args, redirectFrom, redirectTo)
+        return Call(app_name, args, redirectFrom, redirectTo)
 
     # Visit a parse tree produced by CommandParser#atom.
     def visitAtom(
         self, ctx: CommandParser.AtomContext, args: List, input: List, output: List
     ):
         for el in ctx:
-            if el.redirection():
+            if el.redirection() is not None:
                 inputNew, outputNew = [], []
                 self.visitRedirection(el.redirection(), inputNew, outputNew)
                 input.extend(inputNew)
@@ -95,15 +96,12 @@ class Evaluator(CommandVisitor):
     def visitRedirection(
         self, ctx: CommandParser.RedirectionContext, input: List, output: List
     ):
-        # TODO: figure out how to implement redirections
-        for redirection in ctx:
-            sign = redirection.getChild(0).getText()
-            # DO NOT CHANGE THE LINE BELOW!
-            redText = redirection.argument().getText()
-            if sign == "<":
-                input.append(redText)
-            else:
-                output.append(redText)
+        sign = ctx.getChild(0).getText()
+        filename = ctx.argument().getText()
+        if sign == "<":
+            input.append(filename)
+        else:
+            output.append(filename)
 
     # Visit a parse tree produced by CommandParser#quoted.
     def visitQuoted(self, ctx: CommandParser.QuotedContext) -> str:

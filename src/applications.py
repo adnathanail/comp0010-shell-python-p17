@@ -110,7 +110,7 @@ class HeadOrTail:
         num_lines, file, use_stdin = self.validate_args(args)
         first = isinstance(appObject, Head)  # take first n lines, else take last
         if use_stdin:
-            content = input.split("\n")
+            content = input.splitlines(keepends=True)
             content = self.grab_lines(content, num_lines, first)
         else:
             try:
@@ -134,7 +134,7 @@ class HeadOrTail:
             if args[0] != "-n":
                 raise ValueError("wrong flags")
             else:
-                num_lines = int(args)
+                num_lines = int(args[1])
                 use_stdin = True
         elif len(args) == 1:  # FILE specified
             num_lines = self.DEFAULT_NUM_LINES
@@ -245,7 +245,7 @@ class Sort(Application):
             content = []
             if use_stdin:
                 if input is not None:
-                    content = input[0].split()
+                    content = input.split()
                     content.sort(reverse=reverse)
                     content = "\n".join(content)
                     content += "\n"
