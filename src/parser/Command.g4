@@ -8,7 +8,7 @@ SINGLE_QUOTED : '\'' (~[\n'])+ '\'' ;
 BACKQUOTED : '`' (~[\n`])+ '`' ;
 DOUBLE_QUOTED : '"' (BACKQUOTED | (~[\n`"])+)* '"';
 
-UNQUOTED_CONTENT : (~[ \t\n;|<>])+ ;
+UNQUOTED_CONTENT : (~[ '"`\t\n;|<>])+ ;
 
 WHITESPACE          : ' ' | '\t' ;
 
