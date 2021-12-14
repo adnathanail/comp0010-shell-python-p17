@@ -6,6 +6,7 @@ import sys
 from applications import *
 from evaluator import Evaluator
 import logging
+import os
 
 logging.DEBUG = False
 logging.basicConfig(format="%(message)s", level=logging.DEBUG)
@@ -25,16 +26,6 @@ def run(cmdline):
     logging.debug(f"{cmd}")
 
 
-def run_shell(interactive=True):
-    if interactive:
-        while True:
-            print(os.getcwd() + "> ", end="")
-            cmdline = input()
-            run(cmdline)
-    else:  # non-interactive mode
-        run(sys.argv[2])
-
-
 if __name__ == "__main__":
     args_num = len(sys.argv) - 1
     if args_num > 0:  # non-interactive mode
@@ -42,6 +33,9 @@ if __name__ == "__main__":
             raise ValueError("wrong number of command line arguments")
         if sys.argv[1] != "-c":
             raise ValueError(f"unexpected command line argument {sys.argv[1]}")
-        run_shell(interactive=False)
-    else:  # interactive mode
-        run_shell(interactive=True)
+        run(sys.argv[2])
+    else:
+        while True:
+            print(os.getcwd() + "> ", end="")
+            cmdline = input()
+            run(cmdline)
