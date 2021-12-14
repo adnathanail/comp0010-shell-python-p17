@@ -81,15 +81,14 @@ class Cat(Application):
                 raise FileNotFoundError("The file has not been found")
             return s
 
-        content = ""
-        # Now: treat stdin as a list of files # handle exception
-        # no files specified -> use stdin
-        # TODO: how to use stdin? as unparsed arg, multiple args
-        # or just string to be appended?
-        file_list = args if len(args) > 0 else input
-        for file in file_list:
-            content += read_content(file)
-        output.append(content)
+        if args:
+            file_list = args
+            content = ""
+            for file in file_list:
+                content += read_content(file)
+            output.append(content)
+        else:
+            output.append(input)
 
 
 class Echo(Application):
