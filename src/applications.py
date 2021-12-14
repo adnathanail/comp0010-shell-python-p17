@@ -63,7 +63,7 @@ class Ls(Application):
         ]
         if len(list_of_files) > 0:
             output.append("\t".join(list_of_files))
-        output.append("")  # is this needed?
+        output.append("\n")  # is this needed?
 
 
 class Cat(Application):
@@ -74,11 +74,8 @@ class Cat(Application):
     def exec(self, args, input, output):
         def read_content(filename):
             s = ""
-            try:
-                with open(filename, "r") as f:
-                    s += f.read()
-            except FileNotFoundError:
-                raise FileNotFoundError("The file has not been found")
+            with open(filename, "r") as f:
+                s += f.read()
             return s
 
         if args:
@@ -194,7 +191,38 @@ class Cut(Application):
     """
 
     def exec(self, args, input, output):
-        pass
+        if args[0] != "-b":
+            raise Exception("Please pass which bytes you would like with -b")
+        range_strings = args[1].split(",")
+        ranges = []
+        for rs in range_strings:
+            start_end = rs.split("-")
+            range = [int(start_end[0])]
+            if len(start_end) == 2:
+                if start_end[1] == '':
+                    range.append(start_end[1])
+                else:
+                    range.append(int(start_end[1]))
+            ranges.append(range)
+
+        if args[2]:
+            string_to_cut = ""
+            with open(args[2], "r") as f:
+                string_to_cut += f.read()
+        else:
+            string_to_cut = input
+
+        for row in string_to_cut.split("\n"):
+            for range in ranges:
+                if 1 <= range[0] <= len(row):
+                    if len(range) == 1:
+                        output += row[range[0] - 1]
+                    elif len(range) == 2:
+                        output += row[range[0] - 1:]
+                    else:
+                        if range[0] <= range[1] <= len(row):
+                            output += row[range[0] - 1:range[1]]
+            output += "\n"
 
 
 class Find(Application):
