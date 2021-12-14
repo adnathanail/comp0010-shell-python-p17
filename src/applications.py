@@ -205,7 +205,7 @@ class Cut(Application):
                     range.append(int(start_end[1]))
             ranges.append(range)
 
-        if args[2]:
+        if len(args) > 2:
             string_to_cut = ""
             with open(args[2], "r") as f:
                 string_to_cut += f.read()
