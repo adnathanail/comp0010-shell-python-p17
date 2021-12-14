@@ -82,11 +82,16 @@ class TestFEL(unittest.TestCase):
             print("error: failed to remove test volume")
             exit(1)
 
+class TestEcho(TestFEL):
+
     def test_echo(self):
         cmdline = "echo hello world"
         stdout = self.eval(cmdline)
         result = stdout.strip()
         self.assertEqual(result, "hello world")
+
+
+class TestLs(TestFEL):
 
     def test_ls(self):
         cmdline = "ls"
@@ -106,6 +111,9 @@ class TestFEL(unittest.TestCase):
         result = set(re.split("\n|\t", stdout.strip()))
         self.assertEqual(result, {"file.txt"})
 
+
+class TestPwd(TestFEL):
+
     def test_pwd(self):
         cmdline = "pwd"
         stdout = self.eval(cmdline)
@@ -118,6 +126,9 @@ class TestFEL(unittest.TestCase):
         result = stdout.strip()
         self.assertEqual(result, self.TEST_DIR + "/dir1")
 
+
+class TestCat(TestFEL):
+
     def test_cat(self):
         cmdline = "cat dir1/file1.txt dir1/file2.txt"
         stdout = self.eval(cmdline)
@@ -129,6 +140,9 @@ class TestFEL(unittest.TestCase):
         stdout = self.eval(cmdline)
         result = stdout.strip().split("\n")
         self.assertEqual(result, ["AAA", "BBB", "AAA"])
+
+
+class TestHead(TestFEL):
 
     def test_head(self):
         cmdline = "head dir1/longfile.txt"
@@ -160,6 +174,9 @@ class TestFEL(unittest.TestCase):
         result = stdout.strip()
         self.assertEqual(result, "")
 
+
+class TestTail(TestFEL):
+
     def test_tail(self):
         cmdline = "tail dir1/longfile.txt"
         stdout = self.eval(cmdline)
@@ -189,6 +206,9 @@ class TestFEL(unittest.TestCase):
         stdout = self.eval(cmdline)
         result = stdout.strip()
         self.assertEqual(result, "")
+
+
+class TestGrep(TestFEL):
 
     def test_grep(self):
         cmdline = "grep AAA dir1/file1.txt"
@@ -228,6 +248,9 @@ class TestFEL(unittest.TestCase):
         result = stdout.strip().split("\n")
         self.assertEqual(result, ["AAA", "BBB", "AAA", "CCC"])
 
+
+class TestSort(TestFEL):
+
     def test_sort(self):
         cmdline = "sort dir1/file1.txt"
         stdout = self.eval(cmdline)
@@ -245,6 +268,9 @@ class TestFEL(unittest.TestCase):
         stdout = self.eval(cmdline)
         result = stdout.strip().split("\n")
         self.assertEqual(result, ["BBB", "AAA", "AAA"])
+
+
+class TestUniq(TestFEL):
 
     def test_uniq(self):
         cmdline = "uniq dir2/subdir/file.txt"
@@ -269,6 +295,9 @@ class TestFEL(unittest.TestCase):
         stdout = self.eval(cmdline)
         result = stdout.strip().split("\n")
         self.assertEqual(result, ["AAA"])
+
+
+class TestCut(TestFEL):
 
     def test_cut(self):
         cmdline = "cut -b 1 dir1/file1.txt"
@@ -312,35 +341,41 @@ class TestFEL(unittest.TestCase):
         result = stdout.strip()
         self.assertEqual(result, "abc")
 
-    # def test_sed(self):
-    #     cmdline = "sed 's/A/D/' dir1/file1.txt"
-    #     stdout = self.eval(cmdline)
-    #     result = stdout.strip().split("\n")
-    #     self.assertEqual(result, ["DAA", "BBB", "DAA"])
 
-    # def test_sed_stdin(self):
-    #     cmdline = "sed 's/A/D/' < dir1/file1.txt"
-    #     stdout = self.eval(cmdline)
-    #     result = stdout.strip().split("\n")
-    #     self.assertEqual(result, ["DAA", "BBB", "DAA"])
+# class TestSed(TestFEL):
+#
+#     def test_sed(self):
+#         cmdline = "sed 's/A/D/' dir1/file1.txt"
+#         stdout = self.eval(cmdline)
+#         result = stdout.strip().split("\n")
+#         self.assertEqual(result, ["DAA", "BBB", "DAA"])
+#
+#     def test_sed_stdin(self):
+#         cmdline = "sed 's/A/D/' < dir1/file1.txt"
+#         stdout = self.eval(cmdline)
+#         result = stdout.strip().split("\n")
+#         self.assertEqual(result, ["DAA", "BBB", "DAA"])
+#
+#     def test_sed_separator(self):
+#         cmdline = "sed 's|A|D|' dir1/file1.txt"
+#         stdout = self.eval(cmdline)
+#         result = stdout.strip().split("\n")
+#         self.assertEqual(result, ["DAA", "BBB", "DAA"])
+#
+#     def test_sed_g(self):
+#         cmdline = "sed 's/A/D/g' dir1/file1.txt"
+#         stdout = self.eval(cmdline)
+#         result = stdout.strip().split("\n")
+#         self.assertEqual(result, ["DDD", "BBB", "DDD"])
+#
+#     def test_sed_re(self):
+#         cmdline = "sed 's/../DD/g' dir1/file1.txt"
+#         stdout = self.eval(cmdline)
+#         result = stdout.strip().split("\n")
+#         self.assertEqual(result, ["DDA", "DDB", "DDA"])
 
-    # def test_sed_separator(self):
-    #     cmdline = "sed 's|A|D|' dir1/file1.txt"
-    #     stdout = self.eval(cmdline)
-    #     result = stdout.strip().split("\n")
-    #     self.assertEqual(result, ["DAA", "BBB", "DAA"])
 
-    # def test_sed_g(self):
-    #     cmdline = "sed 's/A/D/g' dir1/file1.txt"
-    #     stdout = self.eval(cmdline)
-    #     result = stdout.strip().split("\n")
-    #     self.assertEqual(result, ["DDD", "BBB", "DDD"])
-
-    # def test_sed_re(self):
-    #     cmdline = "sed 's/../DD/g' dir1/file1.txt"
-    #     stdout = self.eval(cmdline)
-    #     result = stdout.strip().split("\n")
-    #     self.assertEqual(result, ["DDA", "DDB", "DDA"])
+class TestFind(TestFEL):
 
     def test_find(self):
         cmdline = "find -name file.txt"
@@ -371,41 +406,47 @@ class TestFEL(unittest.TestCase):
             result, {"dir1/file1.txt", "dir1/file2.txt", "dir1/longfile.txt"}
         )
 
-    # def test_wc(self):
-    #     cmdline = "wc dir1/file1.txt"
-    #     stdout = self.eval(cmdline)
-    #     result = stdout.strip().split()
-    #     self.assertEqual(result, ["3", "3", "12"])
 
-    # def test_wc_stdin(self):
-    #     cmdline = "wc < dir1/file1.txt"
-    #     stdout = self.eval(cmdline)
-    #     result = stdout.strip().split()
-    #     self.assertEqual(result, ["3", "3", "12"])
+# class TestWc(TestFEL):
+#
+#     def test_wc(self):
+#         cmdline = "wc dir1/file1.txt"
+#         stdout = self.eval(cmdline)
+#         result = stdout.strip().split()
+#         self.assertEqual(result, ["3", "3", "12"])
+#
+#     def test_wc_stdin(self):
+#         cmdline = "wc < dir1/file1.txt"
+#         stdout = self.eval(cmdline)
+#         result = stdout.strip().split()
+#         self.assertEqual(result, ["3", "3", "12"])
+#
+#     def test_wc_m(self):
+#         cmdline = "wc -m < dir1/file1.txt"
+#         stdout = self.eval(cmdline)
+#         result = stdout.strip()
+#         self.assertEqual(result, "12")
+#
+#     def test_wc_w(self):
+#         cmdline = "wc -w < dir1/file1.txt"
+#         stdout = self.eval(cmdline)
+#         result = stdout.strip()
+#         self.assertEqual(result, "3")
+#
+#     def test_wc_l(self):
+#         cmdline = "wc -l < dir1/file1.txt"
+#         stdout = self.eval(cmdline)
+#         result = stdout.strip()
+#         self.assertEqual(result, "3")
+#
+#     def test_wc_files(self):
+#         cmdline = "wc -l dir1/file1.txt dir1/file2.txt"
+#         stdout = self.eval(cmdline)
+#         result = stdout.strip()
+#         self.assertEqual(result, "4")
 
-    # def test_wc_m(self):
-    #     cmdline = "wc -m < dir1/file1.txt"
-    #     stdout = self.eval(cmdline)
-    #     result = stdout.strip()
-    #     self.assertEqual(result, "12")
 
-    # def test_wc_w(self):
-    #     cmdline = "wc -w < dir1/file1.txt"
-    #     stdout = self.eval(cmdline)
-    #     result = stdout.strip()
-    #     self.assertEqual(result, "3")
-
-    # def test_wc_l(self):
-    #     cmdline = "wc -l < dir1/file1.txt"
-    #     stdout = self.eval(cmdline)
-    #     result = stdout.strip()
-    #     self.assertEqual(result, "3")
-
-    # def test_wc_files(self):
-    #     cmdline = "wc -l dir1/file1.txt dir1/file2.txt"
-    #     stdout = self.eval(cmdline)
-    #     result = stdout.strip()
-    #     self.assertEqual(result, "4")
+class TestRedirection(TestFEL):
 
     def test_input_redirection(self):
         cmdline = "cat < dir1/file2.txt"
@@ -439,6 +480,9 @@ class TestFEL(unittest.TestCase):
         result = stdout.strip()
         self.assertEqual(result, "foo")
 
+
+class TestGlobbing(TestFEL):
+
     def test_globbing(self):
         cmdline = "echo *.txt"
         stdout = self.eval(cmdline)
@@ -452,6 +496,9 @@ class TestFEL(unittest.TestCase):
         self.assertEqual(
             result, {"dir1/file1.txt", "dir1/file2.txt", "dir1/longfile.txt"}
         )
+
+
+class TestSemicolon(TestFEL):
 
     def test_semicolon(self):
         cmdline = "echo AAA; echo BBB"
@@ -471,12 +518,18 @@ class TestFEL(unittest.TestCase):
         result = stdout.strip()
         self.assertEqual(result, "")
 
+
+class TestUnsafe(TestFEL):
+
     def test_unsafe_ls(self):
         cmdline = "_ls dir3; echo AAA > newfile.txt"
         self.eval(cmdline)
         stdout = self.eval("cat newfile.txt", shell="/bin/bash")
         result = stdout.strip()
         self.assertEqual(result, "AAA")
+
+
+class TestPipe(TestFEL):
 
     def test_pipe_uniq(self):
         cmdline = (
@@ -510,6 +563,9 @@ class TestFEL(unittest.TestCase):
     #     stdout = self.eval(cmdline)
     #     result = stdout.strip()
     #     self.assertEqual(result, "")
+
+
+class TestSubstitution(TestFEL):
 
     def test_substitution(self):
         cmdline = "echo `echo foo`"
@@ -558,6 +614,9 @@ class TestFEL(unittest.TestCase):
         stdout = self.eval(cmdline)
         result = stdout.strip()
         self.assertEqual(result, "foo")
+
+
+class TestQuotes(TestFEL):
 
     def test_singlequotes(self):
         cmdline = "echo 'a  b'"
