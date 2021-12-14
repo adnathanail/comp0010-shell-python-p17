@@ -191,14 +191,23 @@ class Cut(Application):
     """
 
     def exec(self, args, input, output):
+        # print(args)
+        # print(input)
+        # print(output)
         if args[0] != "-b":
             raise Exception("Please pass which bytes you would like with -b")
         range_strings = args[1].split(",")
         ranges = []
         for rs in range_strings:
             start_end = rs.split("-")
-            range = [int(start_end[0])]
-            if len(start_end) == 2:
+            range = []
+            if len(start_end) == 1:  # Just 1 index
+                range.append(int(start_end[0]))
+            elif len(start_end) == 2:  # A slice, e.g. -3 or 4-6 or 7-
+                if start_end[0] == '':
+                    range.append(start_end[0])
+                else:
+                    range.append(int(start_end[0]))
                 if start_end[1] == '':
                     range.append(start_end[1])
                 else:
@@ -214,13 +223,18 @@ class Cut(Application):
 
         for row in string_to_cut.split("\n"):
             for range in ranges:
-                if 1 <= range[0] <= len(row):
-                    if len(range) == 1:
+                if len(range) == 1:
+                    if 1 <= range[0] <= len(row):
                         output += row[range[0] - 1]
-                    elif len(range) == 2:
-                        output += row[range[0] - 1:]
+                elif len(range) == 2:
+                    if range[0] == '':
+                        if 1 <= range[1] <= len(row):
+                            output += row[:range[1]]
+                    elif range[1] == '':
+                        if 1 <= range[0] <= len(row):
+                            output += row[range[0] - 1:]
                     else:
-                        if range[0] <= range[1] <= len(row):
+                        if 1 <= range[0] <= len(row) and range[0] <= range[1] <= len(row):
                             output += row[range[0] - 1:range[1]]
             output += "\n"
 
