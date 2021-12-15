@@ -89,7 +89,7 @@ class Evaluator(CommandVisitor):
                 arguments += self.visitQuoted(el)
             else:  # unquoted content
                 arguments += el.getText()
-        arguments = arguments.split()  # split on whitespace
+        arguments = arguments.split(" ")  # split on space
         args.extend(arguments)
 
     # Visit a parse tree produced by CommandParser#redirection.
@@ -123,6 +123,8 @@ class Evaluator(CommandVisitor):
         if ctx.BACKQUOTED():
             backquotedCmd = str(ctx.BACKQUOTED())[1:-1]
             new_args = evaluateSubCmd(backquotedCmd)
+            new_args.replace("\n", " ")
+            new_args = new_args.strip()
             return new_args
 
         if ctx.DOUBLE_QUOTED():
