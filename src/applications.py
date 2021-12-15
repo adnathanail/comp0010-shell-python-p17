@@ -182,16 +182,21 @@ class Grep(Application):
     """
 
     def exec(self, args, input, output):
+        named_files_to_search = {}
         if len(args) > 1:
-            string_to_search = ""
-            with open(args[1], "r") as f:
-                string_to_search += f.read()
+            for fn in args[1:]:
+                named_files_to_search[fn] = ""
+                with open(fn, "r") as f:
+                    named_files_to_search[fn] += f.read()
         else:
-            string_to_search = input
+            named_files_to_search["stdin"] = input
 
-        for row in string_to_search.split("\n"):
-            if args[0] in row or re.match(args[0], row):
-                output += row + "\n"
+        for filename, file_contents in named_files_to_search.items():
+            for row in file_contents.split("\n"):
+                if args[0] in row or re.match(args[0], row):
+                    if len(named_files_to_search) > 1:
+                        output += filename + ":"
+                    output += row + "\n"
 
 
 class Cut(Application):
