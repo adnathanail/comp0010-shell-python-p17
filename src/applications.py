@@ -262,7 +262,12 @@ class Find(Application):
     """
 
     def exec(self, args, input, output):
-        pass
+        if args[0] != "-name":
+            raise Exception("Please pass a pattern for the file you are looking for with -name")
+        for (dirpath, dirnames, filenames) in os.walk("."):
+            for fn in filenames:
+                if fn == args[1]:
+                    output += dirpath + "/" + fn
 
 
 class Uniq(Application):
