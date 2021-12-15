@@ -8,7 +8,7 @@ import re
 from collections import deque
 
 
-class Evaluator(CommandVisitor):
+class Converter(CommandVisitor):
 
     # Visit a parse tree produced by CommandParser#command.
     def visitCommand(self, ctx: CommandParser.CommandContext) -> Seq:
@@ -89,7 +89,7 @@ class Evaluator(CommandVisitor):
                 arguments += self.visitQuoted(el)
             else:  # unquoted content
                 arguments += el.getText()
-        arguments = arguments.split()  # split on whitespace
+        arguments = arguments.split(" ")  # split on space
         args.extend(arguments)
 
     # Visit a parse tree produced by CommandParser#redirection.
@@ -112,7 +112,7 @@ class Evaluator(CommandVisitor):
             stream = CommonTokenStream(lexer)
             parser = CommandParser(stream)
             tree = parser.command()
-            subcmd = tree.accept(Evaluator())  # I will invoke new instance
+            subcmd = tree.accept(Converter())  # I will invoke new instance
             out = deque()
             subcmd.eval(output=out)
             return " ".join(out)
@@ -123,6 +123,8 @@ class Evaluator(CommandVisitor):
         if ctx.BACKQUOTED():
             backquotedCmd = str(ctx.BACKQUOTED())[1:-1]
             new_args = evaluateSubCmd(backquotedCmd)
+            new_args.replace("\n", " ")
+            new_args = new_args.strip()
             return new_args
 
         if ctx.DOUBLE_QUOTED():

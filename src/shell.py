@@ -4,7 +4,7 @@ from ParsingTesterListener import CustomCommandListener
 from antlr4 import *
 import sys
 from applications import *
-from evaluator import Evaluator
+from converter import Converter
 import logging
 import os
 
@@ -21,7 +21,7 @@ def run(cmdline):
     # printer = CustomCommandListener()
     # walker = ParseTreeWalker()
     # walker.walk(printer, tree)
-    cmd = tree.accept(Evaluator())  # convert
+    cmd = tree.accept(Converter())  # convert
     cmd.eval()  # evaluate
     logging.debug(f"{cmd}")
 
