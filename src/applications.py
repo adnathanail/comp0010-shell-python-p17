@@ -1,9 +1,7 @@
-from io import DEFAULT_BUFFER_SIZE
-import os
-from sys import argv
-from typing import List
 import logging
+import os
 import re
+from typing import List
 
 
 class Application:
@@ -91,7 +89,8 @@ class Cat(Application):
 
 class Echo(Application):
     """
-    Prints its arguments separated by spaces and followed by a newline to stdout.
+    Prints its arguments separated by spaces and followed by a newline to
+    stdout.
     """
 
     def exec(self, args, input, output):
@@ -105,7 +104,8 @@ class HeadOrTail:
 
     def exec(self, args, input, output, appObject):
         num_lines, file, use_stdin = self.validate_args(args)
-        first = isinstance(appObject, Head)  # take first n lines, else take last
+        # take first n lines, else take last
+        first = isinstance(appObject, Head)
         if use_stdin:
             content = input.splitlines(keepends=True)
             content = self.grab_lines(content, num_lines, first)
@@ -249,7 +249,8 @@ class Cut(Application):
                             for i in range(rng[0] - 1, len(row)):
                                 row_output[i] = row[i]
                     else:
-                        if 1 <= rng[0] <= len(row) and rng[0] <= rng[1] <= len(row):
+                        if 1 <= rng[0] <= len(row) \
+                           and rng[0] <= rng[1] <= len(row):
                             for i in range(rng[0] - 1, rng[1]):
                                 row_output[i] = row[i]
             output += "".join(row_output) + "\n"
@@ -270,7 +271,8 @@ class Find(Application):
             search_term = args[2]
         for (dirpath, dirnames, filenames) in os.walk(directory_to_search):
             for fn in filenames:
-                if fn == search_term or re.match(search_term.replace("*", ".*"), fn):
+                if fn == search_term or \
+                   re.match(search_term.replace("*", ".*"), fn):
                     output += str(dirpath) + "/" + str(fn) + "\n"
 
 
@@ -301,7 +303,8 @@ class Uniq(Application):
         current_row = None
         for i in range(len(rows_to_search) - 1):
             if ignore_case:
-                if current_row is not None and rows_to_search[i].lower() == current_row.lower():
+                if current_row is not None and \
+                   rows_to_search[i].lower() == current_row.lower():
                     continue
             else:
                 if rows_to_search[i] == current_row:
@@ -312,7 +315,8 @@ class Uniq(Application):
 
 class Sort(Application):
     """
-    Sorts the contents of a file/stdin line by line and prints the result to stdout.
+    Sorts the contents of a file/stdin line by line and prints the result to
+    stdout.
     """
 
     def exec(self, args, input, output):
@@ -354,7 +358,6 @@ class Sort(Application):
 
 
 class ApplicationFactory:
-
     applications = {
         "pwd": Pwd,
         "cd": Cd,

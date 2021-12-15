@@ -1,12 +1,12 @@
-from parser.python.CommandLexer import CommandLexer
-from parser.python.CommandParser import CommandParser
-from ParsingTesterListener import CustomCommandListener
-from antlr4 import *
-import sys
-from applications import *
-from converter import Converter
 import logging
 import os
+import sys
+
+from antlr4 import InputStream, CommonTokenStream
+
+from converter import Converter
+from parser.python.CommandLexer import CommandLexer
+from parser.python.CommandParser import CommandParser
 
 logging.DEBUG = False
 logging.basicConfig(format="%(message)s", level=logging.DEBUG)
@@ -17,10 +17,6 @@ def run(cmdline):
     stream = CommonTokenStream(lexer)
     parser = CommandParser(stream)
     tree = parser.command()
-    # listener (for debugging only)
-    # printer = CustomCommandListener()
-    # walker = ParseTreeWalker()
-    # walker.walk(printer, tree)
     cmd = tree.accept(Converter())  # convert
     cmd.eval()  # evaluate
     logging.debug(f"{cmd}")

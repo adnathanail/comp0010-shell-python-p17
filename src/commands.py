@@ -1,9 +1,8 @@
-from typing import List
-from applications import ApplicationFactory
-from collections import deque
-import glob
 import logging
-import os
+from collections import deque
+from typing import List
+
+from applications import ApplicationFactory
 
 
 def dequeToStr(deque: deque):
@@ -67,7 +66,13 @@ class Seq(Command):
 
 
 class Call(Command):
-    def __init__(self, app_name: str, args: List, redirectFrom: List, redirectTo: List):
+    def __init__(
+        self,
+        app_name: str,
+        args: List,
+        redirectFrom: List,
+        redirectTo: List
+    ):
         self.app = self.app_factory.create(app_name)
         self.args = args
         if len(redirectFrom) == 0:
@@ -106,7 +111,8 @@ class Call(Command):
             self.writeToFile(self.redirectTo, output)
 
     def writeToFile(self, filename, output):
-        with open(filename, "w") as f:  # overwrites existent or creates a new file
+        # overwrites existent or creates a new file
+        with open(filename, "w") as f:
             while len(output) > 0:
                 f.write(output.popleft())
 

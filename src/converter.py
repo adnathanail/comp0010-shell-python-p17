@@ -1,11 +1,13 @@
+import re
+from collections import deque
 from typing import List
+
+from antlr4 import InputStream, CommonTokenStream
+
+from commands import Command, Pipe, Seq, Call
 from parser.python.CommandLexer import CommandLexer
 from parser.python.CommandParser import CommandParser
 from parser.python.CommandVisitor import CommandVisitor
-from antlr4 import *
-from commands import Command, Pipe, Seq, Call
-import re
-from collections import deque
 
 
 class Converter(CommandVisitor):
@@ -29,7 +31,11 @@ class Converter(CommandVisitor):
         return command
 
     # Visit a parse tree produced by CommandParser#commandSeq.
-    def visitCommandSeq(self, ctx: CommandParser.CommandSeqContext, commandSeq: Seq):
+    def visitCommandSeq(
+        self,
+        ctx: CommandParser.CommandSeqContext,
+        commandSeq: Seq
+    ):
         # get contexts
         callCtx = ctx.call()
         pipeCtx = ctx.callPipe()
@@ -47,7 +53,11 @@ class Converter(CommandVisitor):
             self.visitCommandSeq(seqCtx, commandSeq)
 
     # Visit a parse tree produced by CommandParser#callPipe.
-    def visitCallPipe(self, ctx: CommandParser.CallPipeContext, call: Command) -> Pipe:
+    def visitCallPipe(
+        self,
+        ctx: CommandParser.CallPipeContext,
+        call: Command
+    ) -> Pipe:
         pipe = Pipe(call, self.visitCall(ctx.call()))
         if ctx.callPipe():
             return self.visitCallPipe(ctx.callPipe(), pipe)
@@ -68,7 +78,11 @@ class Converter(CommandVisitor):
 
     # Visit a parse tree produced by CommandParser#atom.
     def visitAtom(
-        self, ctx: CommandParser.AtomContext, args: List, input: List, output: List
+        self,
+        ctx: CommandParser.AtomContext,
+        args: List,
+        input: List,
+        output: List
     ):
         for el in ctx:
             if el.redirection() is not None:
