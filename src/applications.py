@@ -191,28 +191,25 @@ class Cut(Application):
     """
 
     def exec(self, args, input, output):
-        # print(args)
-        # print(input)
-        # print(output)
         if args[0] != "-b":
             raise Exception("Please pass which bytes you would like with -b")
         range_strings = args[1].split(",")
         ranges = []
         for rs in range_strings:
             start_end = rs.split("-")
-            range = []
+            rng = []
             if len(start_end) == 1:  # Just 1 index
-                range.append(int(start_end[0]))
+                rng.append(int(start_end[0]))
             elif len(start_end) == 2:  # A slice, e.g. -3 or 4-6 or 7-
                 if start_end[0] == '':
-                    range.append(start_end[0])
+                    rng.append(start_end[0])
                 else:
-                    range.append(int(start_end[0]))
+                    rng.append(int(start_end[0]))
                 if start_end[1] == '':
-                    range.append(start_end[1])
+                    rng.append(start_end[1])
                 else:
-                    range.append(int(start_end[1]))
-            ranges.append(range)
+                    rng.append(int(start_end[1]))
+            ranges.append(rng)
 
         if len(args) > 2:
             string_to_cut = ""
@@ -222,21 +219,25 @@ class Cut(Application):
             string_to_cut = input
 
         for row in string_to_cut.split("\n"):
-            for range in ranges:
-                if len(range) == 1:
-                    if 1 <= range[0] <= len(row):
-                        output += row[range[0] - 1]
-                elif len(range) == 2:
-                    if range[0] == '':
-                        if 1 <= range[1] <= len(row):
-                            output += row[:range[1]]
-                    elif range[1] == '':
-                        if 1 <= range[0] <= len(row):
-                            output += row[range[0] - 1:]
+            row_output = ['' for _ in range(len(row))]
+            for rng in ranges:
+                if len(rng) == 1:
+                    if 1 <= rng[0] <= len(row):
+                        row_output[rng[0] - 1] = row[rng[0] - 1]
+                elif len(rng) == 2:
+                    if rng[0] == '':
+                        if 1 <= rng[1] <= len(row):
+                            for i in range(rng[1]):
+                                row_output[i] = row[i]
+                    elif rng[1] == '':
+                        if 1 <= rng[0] <= len(row):
+                            for i in range(rng[0] - 1, len(row)):
+                                row_output[i] = row[i]
                     else:
-                        if 1 <= range[0] <= len(row) and range[0] <= range[1] <= len(row):
-                            output += row[range[0] - 1:range[1]]
-            output += "\n"
+                        if 1 <= rng[0] <= len(row) and rng[0] <= rng[1] <= len(row):
+                            for i in range(rng[0] - 1, rng[1]):
+                                row_output[i] = row[i]
+            output += "".join(row_output) + "\n"
 
 
 class Find(Application):
