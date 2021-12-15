@@ -181,7 +181,16 @@ class Grep(Application):
     """
 
     def exec(self, args, input, output):
-        pass
+        if len(args) > 1:
+            string_to_search = ""
+            with open(args[1], "r") as f:
+                string_to_search += f.read()
+        else:
+            string_to_search = input
+
+        for row in string_to_search.split("\n"):
+            if args[0] in row:
+                output += row + "\n"
 
 
 class Cut(Application):
