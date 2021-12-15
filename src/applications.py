@@ -270,8 +270,8 @@ class Find(Application):
             search_term = args[2]
         for (dirpath, dirnames, filenames) in os.walk(directory_to_search):
             for fn in filenames:
-                if fn == search_term or re.match(search_term, fn):
-                    output += dirpath + "/" + fn
+                if fn == search_term or re.match(search_term.replace("*", ".*"), fn):
+                    output += str(dirpath) + "/" + str(fn) + "\n"
 
 
 class Uniq(Application):
