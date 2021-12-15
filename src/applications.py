@@ -281,7 +281,29 @@ class Uniq(Application):
     """
 
     def exec(self, args, input, output):
-        pass
+        ignore_case = False
+        filename = ''
+        if args[0] == "-i":
+            ignore_case = True
+            if len(args) > 1:
+                filename = args[1]
+        else:
+            if len(args) > 0:
+                filename = args[0]
+        if filename:
+            string_to_uniq = ""
+            with open(filename, "r") as f:
+                string_to_uniq += f.read()
+        else:
+            string_to_uniq = input
+
+        rows_to_search = string_to_uniq.split("\n")
+        current_row = None
+        for i in range(len(rows_to_search) - 1):
+            if rows_to_search[i] == current_row:
+                continue
+            output += rows_to_search[i] + "\n"
+            current_row = rows_to_search[i]
 
 
 class Sort(Application):
