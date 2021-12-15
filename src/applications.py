@@ -3,6 +3,7 @@ import os
 from sys import argv
 from typing import List
 import logging
+import re
 
 
 class Application:
@@ -189,7 +190,7 @@ class Grep(Application):
             string_to_search = input
 
         for row in string_to_search.split("\n"):
-            if args[0] in row:
+            if args[0] in row or re.match(args[0], row):
                 output += row + "\n"
 
 
