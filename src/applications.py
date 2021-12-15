@@ -262,11 +262,15 @@ class Find(Application):
     """
 
     def exec(self, args, input, output):
-        if args[0] != "-name":
-            raise Exception("Please pass a pattern for the file you are looking for with -name")
-        for (dirpath, dirnames, filenames) in os.walk("."):
+        if args[0] == "-name":
+            directory_to_search = "."
+            search_term = args[1]
+        else:
+            directory_to_search = args[0]
+            search_term = args[2]
+        for (dirpath, dirnames, filenames) in os.walk(directory_to_search):
             for fn in filenames:
-                if fn == args[1]:
+                if fn == search_term or re.match(search_term, fn):
                     output += dirpath + "/" + fn
 
 
