@@ -1,3 +1,4 @@
+import sys
 import logging
 from collections import deque
 from typing import List
@@ -54,15 +55,8 @@ class Seq(Command):
         self.commands.append(command)
 
     def eval(self, input=None, output=None):
-        print_output = False
-        if output is None:
-            output = deque()
-            print_output = True
         for command in self.commands:
             command.eval(output=output)
-            if print_output:
-                while len(output) > 0:
-                    print(output.popleft(), end="")
 
 
 class Call(Command):
@@ -98,6 +92,10 @@ class Call(Command):
 
     def eval(self, args=None, input=None, output=None):
         logging.debug(f"ARGS IN EVAL: {self.args}")
+        # set print_output to True if not to be outputed to external Command
+        print_output = output is None
+        if print_output:
+            output = deque()
         # TODO: expanding filenames (globbing)
         if args is None:
             args = self.args
@@ -107,14 +105,15 @@ class Call(Command):
         # Execute the app
         self.app.exec(args, input, output)
         # Handle output redirection by writing the output of executed app
+        original_stdout = sys.stdout
         if self.redirectTo is not None:
-            self.writeToFile(self.redirectTo, output)
-
-    def writeToFile(self, filename, output):
-        # overwrites existent or creates a new file
-        with open(filename, "w") as f:
-            while len(output) > 0:
-                f.write(output.popleft())
+            with open(self.redirectTo, "w") as f:
+                sys.stdout = f
+                print(dequeToStr(output))
+            sys.stdout = original_stdout
+        else:
+            if print_output:
+                print(dequeToStr(output))
 
     def readFromFile(self, filename):
         try:

@@ -13,7 +13,7 @@ from parser.python.CommandVisitor import CommandVisitor
 class Converter(CommandVisitor):
 
     # Visit a parse tree produced by CommandParser#command.
-    def visitCommand(self, ctx: CommandParser.CommandContext) -> Seq:
+    def visitCommand(self, ctx: CommandParser.CommandContext) -> Command:
         # get contexts
         callCtx = ctx.call()
         pipeCtx = ctx.callPipe()
@@ -24,9 +24,10 @@ class Converter(CommandVisitor):
             command = self.visitCall(callCtx)
         if pipeCtx:
             command = self.visitCallPipe(pipeCtx, command)
-        # treat single call or pipeline as 1-length cmd sequence
-        command = Seq(command)
         if seqCtx:
+            # init with first call or callPipe
+            command = Seq(command)
+            # add other existing commands to Seq command
             self.visitCommandSeq(seqCtx, command)
         return command
 
