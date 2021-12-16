@@ -136,6 +136,9 @@ class HeadOrTail:
         elif len(args) == 1:  # FILE specified
             num_lines = self.DEFAULT_NUM_LINES
             file = args[0]
+        elif len(args) == 0:
+            num_lines = self.DEFAULT_NUM_LINES
+            use_stdin = True
         else:
             raise ValueError("wrong number of command line arguments")
         return (num_lines, file, use_stdin)
