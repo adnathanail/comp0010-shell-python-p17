@@ -129,7 +129,7 @@ class Converter(CommandVisitor):
             subcmd = tree.accept(Converter())  # I will invoke new instance
             out = deque()
             subcmd.eval(output=out)
-            return " ".join(out)
+            return "".join(out)
 
         if ctx.SINGLE_QUOTED():  # treat as one argument
             return str(ctx.SINGLE_QUOTED())[1:-1]
@@ -137,7 +137,7 @@ class Converter(CommandVisitor):
         if ctx.BACKQUOTED():
             backquotedCmd = str(ctx.BACKQUOTED())[1:-1]
             new_args = evaluateSubCmd(backquotedCmd)
-            new_args.replace("\n", " ")
+            new_args = new_args.replace("\n", " ")
             new_args = new_args.strip()
             return new_args
 
