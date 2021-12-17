@@ -62,9 +62,6 @@ class TestFEL(unittest.TestCase):
                 "echo BBB >> dir1/file1.txt",
                 "echo AAA >> dir1/file1.txt",
                 "echo CCC > dir1/file2.txt",
-                "echo ABCDEF > dir1/file3.txt",
-                "echo GHIJKL >> dir1/file3.txt",
-                "echo MNOPQR >> dir1/file3.txt",
                 "for i in {1..20}; do echo $i >> dir1/longfile.txt; done",
                 "echo AAA > dir2/subdir/file.txt",
                 "echo aaa >> dir2/subdir/file.txt",
@@ -287,12 +284,6 @@ class TestFEL(unittest.TestCase):
         stdout = self.eval(cmdline)
         result = stdout.strip().split("\n")
         self.assertEqual(result, ["AA", "BB", "AA"])
-
-    def test_cut_open_start_interval(self):
-        cmdline = "cut -b -3 dir1/file3.txt"
-        stdout = self.eval(cmdline)
-        result = stdout.strip().split("\n")
-        self.assertEqual(result, ["ABC", "GHI", "MNO"])
 
     def test_cut_overlapping(self):
         cmdline = "cut -b 2-,3- dir1/file1.txt"
