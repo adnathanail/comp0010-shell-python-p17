@@ -96,7 +96,7 @@ class Call(Command):
         print_output = output is None
         if print_output:
             output = deque()
-        # TODO: expanding filenames (globbing)
+        # If args not specified, get attr. after parsing/converting
         if args is None:
             args = self.args
         # Handle input redirections

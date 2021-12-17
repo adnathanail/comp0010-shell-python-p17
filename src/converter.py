@@ -1,7 +1,7 @@
 import re
 from collections import deque
 from typing import List
-
+from glob import glob
 from antlr4 import InputStream, CommonTokenStream
 
 from commands import Command, Pipe, Seq, Call
@@ -67,11 +67,15 @@ class Converter(CommandVisitor):
 
     # Visit a parse tree produced by CommandParser#call.
     def visitCall(self, ctx: CommandParser.CallContext) -> Call:
-        app_name = ctx.argument().getText()
+        args = []
+        # check for first arg, cmd subs. sensitive
+        self.visitArgument(ctx.argument(), args)
+        app_name = args.pop(0)  # rest args are saved
+        # get contexts
         redirectionCtx = ctx.redirection()
         atomCtx = ctx.atom()
-        # Redirections and arguments
-        args, redirectFrom, redirectTo = [], [], []
+        # Redirections and arguments from atom
+        redirectFrom, redirectTo = [], []
         for redirection in redirectionCtx:
             self.visitRedirection(redirection, redirectFrom, redirectTo)
         self.visitAtom(atomCtx, args, redirectFrom, redirectTo)
@@ -98,13 +102,20 @@ class Converter(CommandVisitor):
     # Visit a parse tree produced by CommandParser#argument.
     def visitArgument(self, ctx: CommandParser.ArgumentContext, args: List):
         # to be used ONLY with arguments outside redirections
+        do_globbing = False
         arguments = ""
         for el in ctx.getChildren():
             if isinstance(el, CommandParser.QuotedContext):
                 arguments += self.visitQuoted(el)
             else:  # unquoted content
-                arguments += el.getText()
-        arguments = arguments.split(" ")  # split on space
+                s = el.getText()
+                if "*" in s:
+                    do_globbing = True
+                arguments += s
+        if do_globbing:
+            arguments = glob(arguments) # gives a list
+        else:
+            arguments = arguments.split(" ")
         args.extend(arguments)
 
     # Visit a parse tree produced by CommandParser#redirection.
