@@ -112,6 +112,23 @@ Sorts the contents of a file/stdin line by line and prints the result to stdout.
     - `-r` sorts lines in reverse order
 - `FILE` is the name of the file. If not specified, uses stdin.
 
+## wc
+
+wc stands for word count and is used for counting purposes.  By default (no flag) it prints four-columnar output:
+`<num_of_lines> <num_of_words> <num_of_chars> <filename>`
+If more than 1 file is specified it prints an extra row
+named `total` with total count of specified statistics.
+
+    wc [OPTION] [FILE]...
+
+- `OPTIONS`:
+    - `-l` - prints the number of lines
+    - `-w` - prints the number of words
+    - `-m` - prints the number of characters
+    - `-c` - prints the number of bytes
+    - `-L` - prints the length of the longest line
+- `FILE` is the name of the file. If not specified, uses stdin.
+
 ## Unsafe applications
 
 In COMP0010 Shell, each application has an unsafe variant. An unsafe version of an application is an application that has the same semantics as the original application, but instead of raising exceptions, it prints the error message to its stdout. This feature can be used to prevent long sequences from terminating early when some intermediate commands fail. The names of unsafe applications are prefixed with `_`, e.g. `_ls` and `_grep`.

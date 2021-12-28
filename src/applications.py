@@ -60,7 +60,7 @@ class Ls(Application):
         list_of_files = [
             fname for fname in os.listdir(path) if not (fname.startswith("."))
         ]
-        if len(list_of_files) > 0:
+        if len(list_of_files) > 0:  # TODO: this line may not be needed
             output.append("\t".join(list_of_files))
         output.append("\n")  # is this needed?
 
@@ -360,6 +360,98 @@ class Sort(Application):
             raise FileNotFoundError("File was not found")
 
 
+class WCCounter:
+    def __init__(self, filenames: List[str]):
+        # l-lines, w-words, c-bytes, m-chars, L-length of longest lines
+        def calc_file_stats(filename):  # TODO: add Exceptions
+            d = {"l": 0, "w": 0, "c": 0, "m": 0, "L": 0}
+            with open(filename, 'r') as file:
+                d["c"] = os.path.getsize(filename)
+                for line in file:
+                    d["l"] += 1
+                    d["w"] += len(line.split())
+                    d["m"] += len(line)
+                    if len(line) > d["L"]:
+                        d["L"] = len(line)
+                return d
+
+        self.filenames = filenames
+        self.data = {"l": [], "w": [], "c": [], "m": [], "L": []}
+        for filename in filenames:
+            res = calc_file_stats(filename)
+            for k, v in self.data.items():
+                v.append(res[k])
+
+    def _add_total_count(self):
+        for v in self.data.values():
+            total = str(sum(v))
+            v.append(total)
+        self.filenames.append("total")
+
+    def _get_alignment(self):
+        def calc_align(iterable):
+            return max(map(lambda x: len(str(x)), iterable))
+        align = dict()
+        for k, v in self.data.items():
+            align[k] = calc_align(v)
+        return align
+
+    def get_string_output(self, flag):
+        output = ""
+        if len(self.filenames) > 1:
+            self._add_total_count()
+        align = self._get_alignment()
+        # iterate over each file and its stats
+        for i in range(len(self.filenames)):
+            s = ""
+            if flag is None:
+                lines = self.data["l"][i]  # num of lines
+                w = self.data["w"][i]  # num of words
+                c = self.data["m"][i]  # num of chars
+                align_l = align["l"]
+                align_w = align["w"]
+                align_m = align["m"]
+                s += f"{lines: >{align_l}} {w: >{align_w}} {c: >{align_m}}"
+            elif flag in ["-c", "-l", "-m", "-w", "-L"]:
+                key = flag[1:]
+                s += f"{self.data[key][i]: >{align[key]}}"
+            else:  # wrong flag
+                raise ValueError(f"Invalid flag: {flag}")
+            s += " " + self.filenames[i] + "\n"
+            output += s
+        return output
+
+
+class Wc(Application):
+    """
+    Word prints specified statistics of a file
+    or multiple files or stdin if no file is specified.
+    """
+
+    def exec(self, args, input, output):
+        use_stdin = False
+        flag = None
+        if len(args) == 0:  # default counter + use stdin
+            use_stdin = True
+        elif len(args) == 1:  # flag + stdin OR default + file
+            if args[0][0] == "-":
+                flag = args[0]
+                use_stdin = True
+            else:  # default + file
+                files = [args[0]]
+        else:  # single flag + n files OR n files
+            if args[0][0] == "-":
+                flag = args[0]
+                files = args[1:]
+            else:
+                files = args
+        if use_stdin:  # if no files specified
+            files = input.split()
+        wccounter = WCCounter(filenames=files)
+        res = wccounter.get_string_output(flag)
+        output.append(res)
+
+
 class ApplicationFactory:
     applications = {
         "pwd": Pwd,
@@ -374,6 +466,7 @@ class ApplicationFactory:
         "find": Find,
         "uniq": Uniq,
         "sort": Sort,
+        "wc": Wc,
     }
 
     def create(self, app_name) -> Application:
