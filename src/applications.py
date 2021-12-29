@@ -253,7 +253,7 @@ class Cut(Application):
                                 row_output[i] = row[i]
                     else:
                         if 1 <= rng[0] <= len(row) \
-                           and rng[0] <= rng[1] <= len(row):
+                                and rng[0] <= rng[1] <= len(row):
                             for i in range(rng[0] - 1, rng[1]):
                                 row_output[i] = row[i]
             output += "".join(row_output) + "\n"
@@ -275,7 +275,7 @@ class Find(Application):
         for (dirpath, dirnames, filenames) in os.walk(directory_to_search):
             for fn in filenames:
                 if fn == search_term or \
-                   re.match(search_term.replace("*", ".*"), fn):
+                        re.match(search_term.replace("*", ".*"), fn):
                     output += str(dirpath) + "/" + str(fn) + "\n"
 
 
@@ -307,7 +307,7 @@ class Uniq(Application):
         for i in range(len(rows_to_search) - 1):
             if ignore_case:
                 if current_row is not None and \
-                   rows_to_search[i].lower() == current_row.lower():
+                        rows_to_search[i].lower() == current_row.lower():
                     continue
             else:
                 if rows_to_search[i] == current_row:
@@ -360,6 +360,66 @@ class Sort(Application):
             raise FileNotFoundError("File was not found")
 
 
+class Mkdir(Application):
+    """
+    Create a named folder at a given parent folder.
+    """
+
+    def exec(self, args: List, input: List, output: List):
+        path = args[0]
+        mode = args[1]
+        try:
+            os.mkdir(path, mode)
+            output.append("Directory " + path + " is created.")
+        except OSError as error:
+            print(error)
+            print(f"Directory {path} already exists.")
+
+
+class Rmdir(Application):
+    """
+    Remove folder fom a given path.
+    """
+
+    def exec(self, args: List, input: List, output: List):
+        path = args[0]
+        try:
+            os.rmdir(path)
+            print(f"Directory {path} has been removed successfully.")
+        except OSError as error:
+            print(error)
+            print(f"Directory {path} can not be removed.")
+
+
+class Chown(Application):
+    """
+    Change owner of a file.
+    """
+    def exec(self, args: List, input: List, output: List):
+        path = args[0]
+        uid = args[1]
+        gid = args[2]
+        try:
+            os.chown(path, uid, gid)
+            print(f"Owner id of the file: {os.stat(path).st_uid}")
+        except OSError as error:
+            print(error)
+            print(f"Owner id of the file: {os.stat(path)} couldo be changed.")
+
+
+class Rm(Application):
+    """
+    Remove a file.
+    """
+    def exec(self, args: List, input: List, output: List):
+        path = args[0]
+        try:
+            os.remove(path)
+        except OSError as error:
+            print(error)
+            print(f"{path} could not be deleted.")
+
+
 class ApplicationFactory:
     applications = {
         "pwd": Pwd,
@@ -374,6 +434,10 @@ class ApplicationFactory:
         "find": Find,
         "uniq": Uniq,
         "sort": Sort,
+        "mkdir": Mkdir,
+        "rmdir": Rmdir,
+        "chown": Chown,
+        "rm": Rm
     }
 
     def create(self, app_name) -> Application:
