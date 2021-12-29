@@ -22,11 +22,10 @@ def read_from_file(filename):
         raise FileNotFoundError(f"Could not find the file: {filename}")
 
 
-class Command(ABC):  # pragma: no cover
+class Command:  # pragma: no cover
 
-    @abstractmethod
-    def eval(self, input, output):
-        pass
+    def eval(self, input=None, output=None):
+        return
 
 
 class Pipe(Command):

@@ -1,6 +1,6 @@
 import re
 from collections import deque
-from typing import List
+from typing import List, Union
 from glob import glob
 from antlr4 import InputStream, CommonTokenStream
 
@@ -61,10 +61,12 @@ class Converter(CommandVisitor):
             return pipe
 
     # Visit a parse tree produced by CommandParser#call.
-    def visitCall(self, ctx: CommandParser.CallContext) -> Call:
+    def visitCall(self, ctx: CommandParser.CallContext) -> Union[Call, Command]:
         args = []
         # check for first arg, cmd subs. sensitive
         self.visitArgument(ctx.argument(), args)
+        if len(args) == 0:
+            return Command()
         app_name = args.pop(0)  # rest args are saved
         # get contexts
         redirectionCtx = ctx.redirection()
@@ -96,6 +98,8 @@ class Converter(CommandVisitor):
 
     # Visit a parse tree produced by CommandParser#argument.
     def visitArgument(self, ctx: CommandParser.ArgumentContext, args: List):
+        if ctx is None:
+            return
         # to be used ONLY with arguments outside redirections
         do_globbing = False
         arguments = ""

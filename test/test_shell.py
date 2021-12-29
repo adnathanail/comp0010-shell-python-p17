@@ -347,11 +347,11 @@ class TestUniq(unittest.TestCase):
 
 class TestShellOther(unittest.TestCase):
 
-    # def test_no_command(self):  # TODO: fix shell
-    #     out = deque()
-    #     run("", out)
-    #     out = deque_to_str(out).strip()
-    #     self.assertEqual("", out)
+    def test_no_command(self):
+        out = deque()
+        run("", out)
+        out = deque_to_str(out).strip()
+        self.assertEqual("", out)
 
     def test_invalid_application(self):
         out = deque()
