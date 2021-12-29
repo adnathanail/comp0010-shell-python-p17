@@ -19,7 +19,7 @@ class UnsafeWrapper(Application):
         try:
             self._app.exec(args, input, output)
         except Exception as err:
-            return str(err)  # TODO: temporary, waits for I/O
+            output.append(str(err))
 
 
 class Pwd(Application):
