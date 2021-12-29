@@ -41,3 +41,7 @@ Then, execute system tests using the following command (Python 3.7 or higher is 
 Individual system tests (e.g. `test_cat`) can be executed as
 
     python3 system_test/tests.py -v TestCat.test_cat
+
+To alter the grammar parser, edit `Command.g4` then run
+
+    antlr4 -Dlanguage=Python3 -o python Command.g4 -visitor
