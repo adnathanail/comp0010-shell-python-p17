@@ -63,6 +63,8 @@ class Converter(CommandVisitor):
     # Visit a parse tree produced by CommandParser#call.
     def visitCall(self, ctx: CommandParser.CallContext) -> Union[Call, Command]:
         args = []
+        if ctx is None:
+            return Command()
         # check for first arg, cmd subs. sensitive
         self.visitArgument(ctx.argument(), args)
         if len(args) == 0:
