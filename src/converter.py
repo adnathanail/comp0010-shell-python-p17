@@ -136,7 +136,7 @@ class Converter(CommandVisitor):
             subcmd = tree.accept(Converter())  # I will invoke new instance
             out = deque()
             subcmd.eval(output=out)
-            return "".join(out)
+            return "".join(out).strip()
 
         if ctx.SINGLE_QUOTED():  # treat as one argument
             return str(ctx.SINGLE_QUOTED())[1:-1]
