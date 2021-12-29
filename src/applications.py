@@ -1,17 +1,14 @@
-import logging
 import os
 import re
 from typing import List
+from abc import ABC, abstractmethod
 
 
-class Application:
-    """Informal application interface"""
+class Application(ABC):
 
+    @abstractmethod
     def exec(self, args, input, output):
         pass
-
-    def __str__(self):
-        return str(type(self).__name__)
 
 
 class UnsafeWrapper(Application):
@@ -22,7 +19,6 @@ class UnsafeWrapper(Application):
         try:
             self._app.exec(args, input, output)
         except Exception as err:
-            logging.debug(err)
             return str(err)  # TODO: temporary, waits for I/O
 
 
@@ -30,7 +26,7 @@ class Pwd(Application):
     """Prints current working directory"""
 
     def exec(self, args, input, output):
-        # no args, or input, there may be output
+        # no args, no input, there may be output
         cwd = os.getcwd() + "\n"
         output.append(cwd)
 
