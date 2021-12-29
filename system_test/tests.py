@@ -87,19 +87,19 @@ class TestFEL(unittest.TestCase):
     def test_ls(self):
         cmdline = "ls"
         stdout = self.eval(cmdline)
-        result = set(re.split("\n|\t", stdout.strip()))
+        result = set(re.split("[\n\t]", stdout.strip()))
         self.assertEqual(result, {"test.txt", "dir1", "dir2"})
 
     def test_ls_dir(self):
         cmdline = "ls dir1"
         stdout = self.eval(cmdline)
-        result = set(re.split("\n|\t", stdout.strip()))
+        result = set(re.split("[\n\t]", stdout.strip()))
         self.assertEqual(result, {"file1.txt", "file2.txt", "longfile.txt"})
 
     def test_ls_hidden(self):
         cmdline = "ls dir2/subdir"
         stdout = self.eval(cmdline)
-        result = set(re.split("\n|\t", stdout.strip()))
+        result = set(re.split("[\n\t]", stdout.strip()))
         self.assertEqual(result, {"file.txt"})
 
     def test_pwd(self):
@@ -335,13 +335,13 @@ class TestFEL(unittest.TestCase):
     def test_find(self):
         cmdline = "find -name file.txt"
         stdout = self.eval(cmdline)
-        result = set(re.split("\n|\t", stdout.strip()))
+        result = set(re.split("[\n\t]", stdout.strip()))
         self.assertEqual(result, {"./dir2/subdir/file.txt"})
 
     def test_find_pattern(self):
         cmdline = "find -name '*.txt'"
         stdout = self.eval(cmdline)
-        result = set(re.split("\n|\t", stdout.strip()))
+        result = set(re.split("[\n\t]", stdout.strip()))
         self.assertEqual(
             result,
             {
@@ -356,7 +356,7 @@ class TestFEL(unittest.TestCase):
     def test_find_dir(self):
         cmdline = "find dir1 -name '*.txt'"
         stdout = self.eval(cmdline)
-        result = set(re.split("\n|\t", stdout.strip()))
+        result = set(re.split("[\n\t]", stdout.strip()))
         self.assertEqual(
             result, {"dir1/file1.txt", "dir1/file2.txt", "dir1/longfile.txt"}
         )

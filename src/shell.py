@@ -12,8 +12,8 @@ logging.DEBUG = False
 logging.basicConfig(format="%(message)s", level=logging.DEBUG)
 
 
-def run(cmdline, output=None):  # output is used for testing purposes only
-    lexer = CommandLexer(InputStream(cmdline))
+def run(input_string, output=None):  # output is used for testing purposes only
+    lexer = CommandLexer(InputStream(input_string))
     stream = CommonTokenStream(lexer)
     parser = CommandParser(stream)
     tree = parser.command()

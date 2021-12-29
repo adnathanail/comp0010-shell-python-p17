@@ -10,10 +10,10 @@ from src.shell import run
 app_factory = ApplicationFactory()
 
 
-def deque_to_str(deque: deque):
+def deque_to_str(dq: deque) -> str:
     s = ""
-    while len(deque) > 0:
-        s += deque.popleft()
+    while len(dq) > 0:
+        s += dq.popleft()
     return s
 
 

@@ -98,12 +98,12 @@ class Echo(Application):
 class HeadOrTail:
     DEFAULT_NUM_LINES = 10
 
-    def exec(self, args, input, output, appObject):
+    def exec(self, args, inp, output, appObject):
         num_lines, file, use_stdin = self.validate_args(args)
         # take first n lines, else take last
         first = isinstance(appObject, Head)
         if use_stdin:
-            content = input.splitlines(keepends=True)
+            content = inp.splitlines(keepends=True)
             content = self.grab_lines(content, num_lines, first)
         else:
             try:
@@ -137,7 +137,7 @@ class HeadOrTail:
             use_stdin = True
         else:
             raise ValueError("wrong number of command line arguments")
-        return (num_lines, file, use_stdin)
+        return num_lines, file, use_stdin
 
     @staticmethod
     def grab_lines(content, n, first):
@@ -337,7 +337,6 @@ class Sort(Application):
                 reverse = True
             file = args[1]
         try:
-            content = []
             if use_stdin:
                 if inp is not None:
                     content = inp.split()
@@ -359,10 +358,10 @@ class Sort(Application):
 class WCCounter:
     def __init__(self, filenames: List[str]):
         # l-lines, w-words, c-bytes, m-chars, L-length of longest lines
-        def calc_file_stats(filename):  # TODO: add Exceptions
+        def calc_file_stats(fn):  # TODO: add Exceptions
             d = {"l": 0, "w": 0, "c": 0, "m": 0, "L": 0}
-            with open(filename, 'r') as file:
-                d["c"] = os.path.getsize(filename)
+            with open(fn, 'r') as file:
+                d["c"] = os.path.getsize(fn)
                 for line in file:
                     d["l"] += 1
                     d["w"] += len(line.split())

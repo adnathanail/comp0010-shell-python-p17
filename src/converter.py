@@ -85,14 +85,14 @@ class Converter(CommandVisitor):
         self,
         ctx: CommandParser.AtomContext,
         args: List,
-        input: List,
+        inp: List,
         output: List
     ):
         for el in ctx:
             if el.redirection() is not None:
                 input_new, output_new = [], []
                 self.visitRedirection(el.redirection(), input_new, output_new)
-                input.extend(input_new)
+                inp.extend(input_new)
                 output.extend(output_new)
             else:
                 # amend args list in visitArgument
@@ -121,12 +121,12 @@ class Converter(CommandVisitor):
 
     # Visit a parse tree produced by CommandParser#redirection.
     def visitRedirection(
-        self, ctx: CommandParser.RedirectionContext, input: List, output: List
+        self, ctx: CommandParser.RedirectionContext, inp: List, output: List
     ):
         sign = ctx.getChild(0).getText()
         filename = ctx.argument().getText()
         if sign == "<":
-            input.append(filename)
+            inp.append(filename)
         else:
             output.append(filename)
 

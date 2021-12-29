@@ -1,7 +1,6 @@
 import sys
 from collections import deque
 from typing import List
-from abc import ABC, abstractmethod
 
 from applications import ApplicationFactory
 
