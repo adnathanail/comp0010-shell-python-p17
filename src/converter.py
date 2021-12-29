@@ -19,9 +19,7 @@ class Converter(CommandVisitor):
         pipeCtx = ctx.callPipe()
         seqCtx = ctx.commandSeq()
         # converting to proper commands
-        command = None
-        if callCtx:
-            command = self.visitCall(callCtx)
+        command = self.visitCall(callCtx)
         if pipeCtx:
             command = self.visitCallPipe(pipeCtx, command)
         if seqCtx:
@@ -42,13 +40,10 @@ class Converter(CommandVisitor):
         pipeCtx = ctx.callPipe()
         seqCtx = ctx.commandSeq()
         # add subcmd to commandSeq
-        subcmd = None
-        if callCtx:
-            subcmd = self.visitCall(callCtx)
+        subcmd = self.visitCall(callCtx)
         if pipeCtx:
             subcmd = self.visitCallPipe(pipeCtx, subcmd)
-        if subcmd is not None:
-            commandSeq.addCommand(subcmd)
+        commandSeq.add_command(subcmd)
         # continue traversing seq if there are cmds
         if seqCtx:
             self.visitCommandSeq(seqCtx, commandSeq)
@@ -75,11 +70,11 @@ class Converter(CommandVisitor):
         redirectionCtx = ctx.redirection()
         atomCtx = ctx.atom()
         # Redirections and arguments from atom
-        redirectFrom, redirectTo = [], []
+        redirect_from, redirect_to = [], []
         for redirection in redirectionCtx:
-            self.visitRedirection(redirection, redirectFrom, redirectTo)
-        self.visitAtom(atomCtx, args, redirectFrom, redirectTo)
-        return Call(app_name, args, redirectFrom, redirectTo)
+            self.visitRedirection(redirection, redirect_from, redirect_to)
+        self.visitAtom(atomCtx, args, redirect_from, redirect_to)
+        return Call(app_name, args, redirect_from, redirect_to)
 
     # Visit a parse tree produced by CommandParser#atom.
     def visitAtom(
@@ -91,10 +86,10 @@ class Converter(CommandVisitor):
     ):
         for el in ctx:
             if el.redirection() is not None:
-                inputNew, outputNew = [], []
-                self.visitRedirection(el.redirection(), inputNew, outputNew)
-                input.extend(inputNew)
-                output.extend(outputNew)
+                input_new, output_new = [], []
+                self.visitRedirection(el.redirection(), input_new, output_new)
+                input.extend(input_new)
+                output.extend(output_new)
             else:
                 # amend args list in visitArgument
                 self.visitArgument(el.argument(), args)
@@ -113,7 +108,7 @@ class Converter(CommandVisitor):
                     do_globbing = True
                 arguments += s
         if do_globbing:
-            arguments = glob(arguments) # gives a list
+            arguments = glob(arguments)  # gives a list
         else:
             arguments = arguments.split(" ")
         args.extend(arguments)
@@ -146,22 +141,22 @@ class Converter(CommandVisitor):
         if ctx.SINGLE_QUOTED():  # treat as one argument
             return str(ctx.SINGLE_QUOTED())[1:-1]
 
-        if ctx.BACKQUOTED():
-            backquotedCmd = str(ctx.BACKQUOTED())[1:-1]
-            new_args = evaluateSubCmd(backquotedCmd)
+        elif ctx.BACKQUOTED():
+            backquoted_cmd = str(ctx.BACKQUOTED())[1:-1]
+            new_args = evaluateSubCmd(backquoted_cmd)
             new_args = new_args.replace("\n", " ")
             new_args = new_args.strip()
             return new_args
 
-        if ctx.DOUBLE_QUOTED():
+        else:  # ctx.DOUBLE_QUOTED():
             # do cmd subs. if needed, then treat as single arg
             doublequoted = str(ctx.DOUBLE_QUOTED())[1:-1]
             # search for backquoted parts
             matches = re.findall("`[^`]*`", doublequoted)
             if len(matches) > 0:  # do cmd subs.
                 for match in matches:
-                    matchCmd = match[1:-1]
-                    new_args = evaluateSubCmd(matchCmd)
+                    match_cmd = match[1:-1]
+                    new_args = evaluateSubCmd(match_cmd)
                     # replace 1st occurence of match with its evaluation
                     doublequoted = doublequoted.replace(match, new_args, 1)
             # after substituting potential subcmds, treat as single arg

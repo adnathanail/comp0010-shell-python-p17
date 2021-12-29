@@ -1,25 +1,30 @@
 import sys
-import logging
 from collections import deque
 from typing import List
+from abc import ABC, abstractmethod
 
 from applications import ApplicationFactory
 
 
-def dequeToStr(deque: deque):
+def deque_to_str(deque: deque) -> str:
     s = ""
     while len(deque) > 0:
         s += deque.popleft()
     return s
 
 
-class Command:
+def read_from_file(filename):
+    try:
+        with open(filename, "r") as f:
+            content = f.read()
+            return content
+    except FileNotFoundError:
+        raise FileNotFoundError(f"Could not find the file: {filename}")
 
-    app_factory = ApplicationFactory()
 
-    def __repr__(self) -> str:
-        return self.__str__()
+class Command(ABC):
 
+    @abstractmethod
     def eval(self, input, output):
         pass
 
@@ -31,27 +36,18 @@ class Pipe(Command):
         self.left = left
         self.right = right
 
-    def __str__(self):
-        return f"Pipe({self.left} | {self.right})"
-
     def eval(self, input=None, output=None):
         content_list = deque()
         self.left.eval(input=input, output=content_list)
-        new_input = dequeToStr(content_list)
+        new_input = deque_to_str(content_list)
         self.right.eval(input=new_input, output=output)
 
 
 class Seq(Command):
-    def __init__(self, command=None):
-        if command is not None:
-            self.commands = [command]
-        else:
-            self.command = []
+    def __init__(self, initial_command: Command):
+        self.commands = [initial_command]
 
-    def __str__(self):
-        return f"Seq({str(self.commands)}"
-
-    def addCommand(self, command):
+    def add_command(self, command: Command):
         self.commands.append(command)
 
     def eval(self, input=None, output=None):
@@ -60,38 +56,32 @@ class Seq(Command):
 
 
 class Call(Command):
+
+    app_factory = ApplicationFactory()
+
     def __init__(
         self,
         app_name: str,
         args: List,
-        redirectFrom: List,
-        redirectTo: List
+        redirect_from: List,
+        redirect_to: List
     ):
         self.app = self.app_factory.create(app_name)
         self.args = args
-        if len(redirectFrom) == 0:
-            self.redirectFrom = None
-        elif len(redirectFrom) == 1:
-            self.redirectFrom = redirectFrom[0]
+        if len(redirect_from) == 0:
+            self.redirect_from = None
+        elif len(redirect_from) == 1:
+            self.redirect_from = redirect_from[0]
         else:  # > 0
             raise ValueError("Multiple files specified for input redirection")
-        if len(redirectTo) == 0:
-            self.redirectTo = None
-        elif len(redirectTo) == 1:
-            self.redirectTo = redirectTo[0]
+        if len(redirect_to) == 0:
+            self.redirect_to = None
+        elif len(redirect_to) == 1:
+            self.redirect_to = redirect_to[0]
         else:
             raise ValueError("Multiple files specified for output redirection")
 
-    def __str__(self):
-        return (
-            f"{str(self.app).capitalize()}"
-            f"(args={self.args},"
-            f"redirectFrom={self.redirectFrom},"
-            f"redirectTo={self.redirectTo})"
-        )
-
     def eval(self, args=None, input=None, output=None):
-        logging.debug(f"ARGS IN EVAL: {self.args}")
         # set print_output to True if not to be outputed to external Command
         print_output = output is None
         if print_output:
@@ -100,25 +90,17 @@ class Call(Command):
         if args is None:
             args = self.args
         # Handle input redirections
-        if self.redirectFrom is not None:  # read input from file
-            input = self.readFromFile(self.redirectFrom)
+        if self.redirect_from is not None:  # read input from file
+            input = read_from_file(self.redirect_from)
         # Execute the app
         self.app.exec(args, input, output)
         # Handle output redirection by writing the output of executed app
         original_stdout = sys.stdout
-        if self.redirectTo is not None:
-            with open(self.redirectTo, "w") as f:
+        if self.redirect_to is not None:
+            with open(self.redirect_to, "w") as f:
                 sys.stdout = f
-                print(dequeToStr(output))
+                print(deque_to_str(output))
             sys.stdout = original_stdout
         else:
             if print_output:
-                print(dequeToStr(output))
-
-    def readFromFile(self, filename):
-        try:
-            with open(filename, "r") as f:
-                content = f.read()
-                return content
-        except FileNotFoundError:
-            raise FileNotFoundError(f"Could not find the file: {filename}")
+                print(deque_to_str(output))
