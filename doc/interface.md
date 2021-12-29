@@ -56,4 +56,4 @@ Individual system tests (e.g. `test_cat`) can be executed as
 
 To alter the parser, edit `Command.g4` then run
 
-    antlr4 -Dlanguage=Python3 -o python Command.g4 -visitor
+    cd src && antlr4 -Dlanguage=Python3 -o parser Command.g4 -visitor
