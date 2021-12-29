@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 class Application(ABC):  # pragma: no cover
 
     @abstractmethod
-    def exec(self, args, input, output):
+    def exec(self, inp, output, args):
         pass
 
 
@@ -15,9 +15,9 @@ class UnsafeWrapper(Application):
     def __init__(self, app):
         self._app = app
 
-    def exec(self, args, input, output):
+    def exec(self, inp, output, args):
         try:
-            self._app.exec(args, input, output)
+            self._app.exec(args, inp, output)
         except Exception as err:
             output.append(str(err))
 
@@ -25,7 +25,7 @@ class UnsafeWrapper(Application):
 class Pwd(Application):
     """Prints current working directory"""
 
-    def exec(self, args, input, output):
+    def exec(self, inp, output, args):
         # no args, no input, there may be output
         cwd = os.getcwd() + "\n"
         output.append(cwd)
@@ -34,7 +34,7 @@ class Pwd(Application):
 class Cd(Application):
     """Changes current working directory"""
 
-    def exec(self, args, input, output):
+    def exec(self, inp, output, args):
         path = args[0]
         os.chdir(path)
 
@@ -46,7 +46,7 @@ class Ls(Application):
     whose name start with '.'
     """
 
-    def exec(self, args: List, input: List, output: List):
+    def exec(self, inp: List, output: List, args: List):
         if len(args) == 0:
             path = os.getcwd()
         elif len(args) == 1:
@@ -66,7 +66,7 @@ class Cat(Application):
     Concatenates the content of given files and prints it to stdout.
     """
 
-    def exec(self, args, input, output):
+    def exec(self, inp, output, args):
         def read_content(filename):
             s = ""
             with open(filename, "r") as f:
@@ -80,7 +80,7 @@ class Cat(Application):
                 content += read_content(file)
             output.append(content)
         else:
-            output.append(input)
+            output.append(inp)
 
 
 class Echo(Application):
@@ -89,7 +89,7 @@ class Echo(Application):
     stdout.
     """
 
-    def exec(self, args, input, output):
+    def exec(self, inp, output, args):
         string = " ".join(args)
         string += "\n"
         output.append(string)
@@ -158,8 +158,8 @@ class Head(Application):
     without raising an exception.
     """
 
-    def exec(self, args, input, output):
-        HeadOrTail().exec(args, input, output, appObject=self)
+    def exec(self, inp, output, args):
+        HeadOrTail().exec(args, inp, output, appObject=self)
 
 
 class Tail(Application):
@@ -169,8 +169,8 @@ class Tail(Application):
     without raising an exception.
     """
 
-    def exec(self, args, input, output):
-        HeadOrTail().exec(args, input, output, appObject=self)
+    def exec(self, inp, output, args):
+        HeadOrTail().exec(args, inp, output, appObject=self)
 
 
 class Grep(Application):
@@ -180,7 +180,7 @@ class Grep(Application):
     Each line is printed followed by a newline.
     """
 
-    def exec(self, args, input, output):
+    def exec(self, inp, output, args):
         named_files_to_search = {}
         if len(args) > 1:
             for fn in args[1:]:
@@ -188,7 +188,7 @@ class Grep(Application):
                 with open(fn, "r") as f:
                     named_files_to_search[fn] += f.read()
         else:
-            named_files_to_search["stdin"] = input
+            named_files_to_search["stdin"] = inp
 
         for filename, file_contents in named_files_to_search.items():
             for row in file_contents.split("\n"):
@@ -204,7 +204,7 @@ class Cut(Application):
     and prints the result to stdout.
     """
 
-    def exec(self, args, input, output):
+    def exec(self, inp, output, args):
         if args[0] != "-b":
             raise ValueError("Please pass which bytes you would like with -b")
         range_strings = args[1].split(",")
@@ -230,7 +230,7 @@ class Cut(Application):
             with open(args[2], "r") as f:
                 string_to_cut += f.read()
         else:
-            string_to_cut = input
+            string_to_cut = inp
 
         for row in string_to_cut.split("\n"):
             row_output = ['' for _ in range(len(row))]
@@ -261,7 +261,7 @@ class Find(Application):
     Outputs the list of relative paths, each followed by a newline.
     """
 
-    def exec(self, args, input, output):
+    def exec(self, inp, output, args):
         if args[0] == "-name":
             directory_to_search = "."
             search_term = args[1]
@@ -281,7 +281,7 @@ class Uniq(Application):
     from an input file/stdin and prints the result to stdout.
     """
 
-    def exec(self, args, input, output):
+    def exec(self, inp, output, args):
         ignore_case = False
         filename = ''
         if len(args) > 0 and args[0] == "-i":
@@ -296,7 +296,7 @@ class Uniq(Application):
             with open(filename, "r") as f:
                 string_to_uniq += f.read()
         else:
-            string_to_uniq = input
+            string_to_uniq = inp
 
         rows_to_search = string_to_uniq.split("\n")
         current_row = None
@@ -318,7 +318,7 @@ class Sort(Application):
     stdout.
     """
 
-    def exec(self, args, input, output):
+    def exec(self, inp, output, args):
         use_stdin = False
         reverse = False
         if len(args) == 0:
@@ -339,8 +339,8 @@ class Sort(Application):
         try:
             content = []
             if use_stdin:
-                if input is not None:
-                    content = input.split()
+                if inp is not None:
+                    content = inp.split()
                     content.sort(reverse=reverse)
                     content = "\n".join(content)
                     content += "\n"
@@ -424,7 +424,7 @@ class Wc(Application):
     or multiple files or stdin if no file is specified.
     """
 
-    def exec(self, args, input, output):
+    def exec(self, inp, output, args):
         use_stdin = False
         flag = None
         if len(args) == 0:  # default counter + use stdin
@@ -442,7 +442,7 @@ class Wc(Application):
             else:
                 files = args
         if use_stdin:  # if no files specified
-            files = input.split()
+            files = inp.split()
         wccounter = WCCounter(filenames=files)
         res = wccounter.get_string_output(flag)
         output.append(res)

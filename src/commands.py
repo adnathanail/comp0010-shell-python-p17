@@ -6,10 +6,10 @@ from abc import ABC, abstractmethod
 from applications import ApplicationFactory
 
 
-def deque_to_str(deque: deque) -> str:
+def deque_to_str(dq: deque) -> str:
     s = ""
-    while len(deque) > 0:
-        s += deque.popleft()
+    while len(dq) > 0:
+        s += dq.popleft()
     return s
 
 
@@ -24,7 +24,7 @@ def read_from_file(filename):
 
 class Command:  # pragma: no cover
 
-    def eval(self, input=None, output=None):
+    def eval(self, inp=None, output=None):
         return
 
 
@@ -35,11 +35,11 @@ class Pipe(Command):
         self.left = left
         self.right = right
 
-    def eval(self, input=None, output=None):
+    def eval(self, inp=None, output=None):
         content_list = deque()
-        self.left.eval(input=input, output=content_list)
+        self.left.eval(inp=inp, output=content_list)
         new_input = deque_to_str(content_list)
-        self.right.eval(input=new_input, output=output)
+        self.right.eval(inp=new_input, output=output)
 
 
 class Seq(Command):
@@ -49,7 +49,7 @@ class Seq(Command):
     def add_command(self, command: Command):
         self.commands.append(command)
 
-    def eval(self, input=None, output=None):
+    def eval(self, inp=None, output=None):
         for command in self.commands:
             command.eval(output=output)
 
@@ -80,7 +80,7 @@ class Call(Command):
         else:
             raise ValueError("Multiple files specified for output redirection")
 
-    def eval(self, args=None, input=None, output=None):
+    def eval(self, inp=None, output=None, args=None):
         # set print_output to True if not to be outputed to external Command
         print_output = output is None
         if print_output:
@@ -90,9 +90,9 @@ class Call(Command):
             args = self.args
         # Handle input redirections
         if self.redirect_from is not None:  # read input from file
-            input = read_from_file(self.redirect_from)
+            inp = read_from_file(self.redirect_from)
         # Execute the app
-        self.app.exec(args, input, output)
+        self.app.exec(inp, output, args)
         # Handle output redirection by writing the output of executed app
         original_stdout = sys.stdout
         if self.redirect_to is not None:

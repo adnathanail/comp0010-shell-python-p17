@@ -23,9 +23,9 @@ class TestPwd(unittest.TestCase):
 
     def test_pwd(self):
         args = []
-        input = []
+        inp = []
         out = deque()
-        self.pwd.exec(args, input, out)
+        self.pwd.exec(inp, out, args)
         out = deque_to_str(out).strip()
         self.assertEqual(out, os.getcwd())
 
@@ -46,18 +46,18 @@ class TestLs(unittest.TestCase):
 
     def test_ls_cwd(self):
         args = []
-        input = []
+        inp = []
         out = deque()
-        self.ls.exec(args, input, out)
+        self.ls.exec(inp, out, args)
         out = deque_to_str(out).strip().split()
         correct = list(filter(lambda x: x[0] != ".", list(os.listdir("."))))
         self.assertEqual(out, correct)
 
     def test_ls_with_arg(self):
         args = [self.dir.name]
-        input = []
+        inp = []
         out = deque()
-        self.ls.exec(args, input, out)
+        self.ls.exec(inp, out, args)
         out = sorted(deque_to_str(out).strip().split())
         filename1 = os.path.basename(str(self.file1.name))
         filename2 = os.path.basename(str(self.file2.name))
@@ -66,9 +66,9 @@ class TestLs(unittest.TestCase):
 
     def test_ls_no_files_found(self):
         args = [self.empty_dir.name]
-        input = []
+        inp = []
         out = deque()
-        self.ls.exec(args, input, out)
+        self.ls.exec(inp, out, args)
         out = deque_to_str(out).strip().split()
         correct = []
         self.assertEqual(out, correct)
@@ -76,16 +76,16 @@ class TestLs(unittest.TestCase):
     def test_ls_with_invalid_arg(self):
         with self.assertRaises(FileNotFoundError):
             args = ["invalid_dir"]
-            input = []
+            inp = []
             out = deque()
-            self.ls.exec(args, input, out)
+            self.ls.exec(inp, out, args)
 
     def test_ls_too_many_args(self):
         with self.assertRaises(ValueError):
             args = ["arg1", "arg2"]
-            input = []
+            inp = []
             out = deque()
-            self.ls.exec(args, input, out)
+            self.ls.exec(inp, out, args)
 
 
 class TestEcho(unittest.TestCase):
@@ -94,33 +94,33 @@ class TestEcho(unittest.TestCase):
 
     def test_echo_no_args(self):
         args = []
-        input = []
+        inp = []
         out = deque()
-        self.echo.exec(args, input, out)
+        self.echo.exec(inp, out, args)
         out = deque_to_str(out).strip()
         self.assertEqual(out, "")
 
     def test_echo_unquoted(self):
         args = ["hello"]
-        input = []
+        inp = []
         out = deque()
-        self.echo.exec(args, input, out)
+        self.echo.exec(inp, out, args)
         out = deque_to_str(out).strip()
         self.assertEqual(out, "hello")
 
     def test_echo_unquoted_many(self):
         args = ["hello", "world, user!"]
-        input = []
+        inp = []
         out = deque()
-        self.echo.exec(args, input, out)
+        self.echo.exec(inp, out, args)
         out = deque_to_str(out).strip()
         self.assertEqual(out, "hello world, user!")
 
     def test_echo_quoted_args(self):
         args = ["'hello'", "w'o'rld, u'se'r!"]
-        input = []
+        inp = []
         out = deque()
-        self.echo.exec(args, input, out)
+        self.echo.exec(inp, out, args)
         out = deque_to_str(out).strip()
         self.assertEqual(out, "'hello' w'o'rld, u'se'r!")
 
@@ -141,8 +141,8 @@ class TestHeadAndTail(unittest.TestCase):
         head_out = deque()
         tail_out = deque()
         fname = self.file1.name
-        self.head.exec(args=[fname], input=[], output=head_out)
-        self.tail.exec(args=[fname], input=[], output=tail_out)
+        self.head.exec(args=[fname], inp=[], output=head_out)
+        self.tail.exec(args=[fname], inp=[], output=tail_out)
         head_out = deque_to_str(head_out).split()
         tail_out = deque_to_str(tail_out).split()
         self.assertEqual(head_out, [str(i) for i in range(0, 10)])
@@ -153,8 +153,8 @@ class TestHeadAndTail(unittest.TestCase):
         tail_out = deque()
         num = 0
         fname = self.file1.name
-        self.head.exec(args=["-n", str(num), fname], input=[], output=head_out)
-        self.tail.exec(args=["-n", str(num), fname], input=[], output=tail_out)
+        self.head.exec(args=["-n", str(num), fname], inp=[], output=head_out)
+        self.tail.exec(args=["-n", str(num), fname], inp=[], output=tail_out)
         head_out = deque_to_str(head_out).split()
         tail_out = deque_to_str(tail_out).split()
         self.assertEqual(head_out, [])
@@ -165,8 +165,8 @@ class TestHeadAndTail(unittest.TestCase):
         tail_out = deque()
         num = random.randint(1, 99)
         fname = self.file1.name
-        self.head.exec(args=["-n", str(num), fname], input=[], output=head_out)
-        self.tail.exec(args=["-n", str(num), fname], input=[], output=tail_out)
+        self.head.exec(args=["-n", str(num), fname], inp=[], output=head_out)
+        self.tail.exec(args=["-n", str(num), fname], inp=[], output=tail_out)
         head_out = deque_to_str(head_out).split()
         tail_out = deque_to_str(tail_out).split()
         correct_1 = [str(i) for i in range(0, num)]
@@ -177,17 +177,17 @@ class TestHeadAndTail(unittest.TestCase):
     def test_head_tail_file_not_found(self):
         non_existent_file = "hello"
         with self.assertRaises(FileNotFoundError):
-            self.head.exec(args=[non_existent_file], input=[], output=deque())
+            self.head.exec(args=[non_existent_file], inp=[], output=deque())
         with self.assertRaises(FileNotFoundError):
-            self.tail.exec(args=[non_existent_file], input=[], output=deque())
+            self.tail.exec(args=[non_existent_file], inp=[], output=deque())
 
     def test_head_tail_take_more_than_exist(self):
         num = 101  # where len(file) = 100
         head_out = deque()
         tail_out = deque()
         args = ["-n", str(num), self.file1.name]
-        self.head.exec(args=args, input=[], output=head_out)
-        self.tail.exec(args=args, input=[], output=tail_out)
+        self.head.exec(args=args, inp=[], output=head_out)
+        self.tail.exec(args=args, inp=[], output=tail_out)
         head_out = deque_to_str(head_out).split()
         tail_out = deque_to_str(tail_out).split()
         self.assertEqual(head_out, [str(i) for i in range(0, 100)])
@@ -199,8 +199,8 @@ class TestHeadAndTail(unittest.TestCase):
         head_out = deque()
         tail_out = deque()
         args = ["-n", str(num)]
-        self.head.exec(args=args, input=stdin, output=head_out)
-        self.tail.exec(args=args, input=stdin, output=tail_out)
+        self.head.exec(args=args, inp=stdin, output=head_out)
+        self.tail.exec(args=args, inp=stdin, output=tail_out)
         head_out = deque_to_str(head_out).strip().split()
         tail_out = deque_to_str(tail_out).strip().split()
         correct_1 = [str(i) for i in range(0, num)]
@@ -211,20 +211,20 @@ class TestHeadAndTail(unittest.TestCase):
     def test_head_tail_wrong_args(self):
         with self.assertRaises(ValueError):  # wrong flag
             args = ["-c", "10", self.file1.name]
-            self.tail.exec(args=args, input=[], output=deque())
+            self.tail.exec(args=args, inp=[], output=deque())
         with self.assertRaises(ValueError):  # wrong flag
             args = ["-c", "10"]
-            self.tail.exec(args=args, input=[], output=deque())
+            self.tail.exec(args=args, inp=[], output=deque())
         with self.assertRaises(ValueError):  # more than 3 args
             args = ["-n", "10", self.file1.name, "arg4"]
-            self.tail.exec(args=args, input=[], output=deque())
+            self.tail.exec(args=args, inp=[], output=deque())
 
     def test_head_tail_no_args(self):
         stdin = "\n".join([str(i) for i in range(0, 100)])
         head_output = deque()
         tail_output = deque()
-        self.head.exec(args=[], input=stdin, output=head_output)
-        self.tail.exec(args=[], input=stdin, output=tail_output)
+        self.head.exec(args=[], inp=stdin, output=head_output)
+        self.tail.exec(args=[], inp=stdin, output=tail_output)
         head_output = deque_to_str(head_output).strip().split()
         tail_output = deque_to_str(tail_output).strip().split()
         self.assertEqual(head_output, [str(i) for i in range(0, 10)])
@@ -245,60 +245,60 @@ class TestCut(unittest.TestCase):
     def test_cut_no_flag(self):
         with self.assertRaises(ValueError):
             args = [self.file1.name]
-            input = []
+            inp = []
             out = deque()
-            self.cut.exec(args, input, out)
+            self.cut.exec(inp, out, args)
 
     def test_cut_single_byte_with_stdin(self):
         args = ['-b', '1']
-        input = "Hello!"
+        inp = "Hello!"
         out = deque()
-        self.cut.exec(args, input, out)
+        self.cut.exec(inp, out, args)
         out = deque_to_str(out).strip()
         self.assertEqual(out, 'H')
 
     def test_cut_single_byte(self):
         fname = self.file1.name
         args = ['-b', '1', fname]
-        input = []
+        inp = []
         out = deque()
-        self.cut.exec(args, input, out)
+        self.cut.exec(inp, out, args)
         out = deque_to_str(out).split()
         self.assertEqual(out, ["1", "1", "1"])
 
     def test_cut_single_range(self):
         fname = self.file1.name
         args = ['-b', '4-7', fname]
-        input = []
+        inp = []
         out = deque()
-        self.cut.exec(args, input, out)
+        self.cut.exec(inp, out, args)
         out = deque_to_str(out).split()
         self.assertEqual(out, ["4567", "4567", "4567"])
 
     def test_cut_one_endpoint_range(self):
         fname = self.file1.name
         args = ['-b', '-6', fname]
-        input = []
+        inp = []
         out = deque()
-        self.cut.exec(args, input, out)
+        self.cut.exec(inp, out, args)
         out = deque_to_str(out).split()
         self.assertEqual(out, ["123456", "123456", "123456"])
 
     def test_cut_one_startpoint_range(self):
         fname = self.file1.name
         args = ['-b', '8-', fname]
-        input = []
+        inp = []
         out = deque()
-        self.cut.exec(args, input, out)
+        self.cut.exec(inp, out, args)
         out = deque_to_str(out).split()
         self.assertEqual(out, ["89", "89", "89"])
 
     def test_cut_multiple_range(self):
         fname = self.file1.name
         args = ['-b', '-3,5-6,9-', fname]
-        input = []
+        inp = []
         out = deque()
-        self.cut.exec(args, input, out)
+        self.cut.exec(inp, out, args)
         out = deque_to_str(out).split()
         exp_res = ["123569", "123569", "123569"]
         self.assertEqual(out, exp_res)
@@ -315,32 +315,32 @@ class TestUniq(unittest.TestCase):
 
     # def test_uniq_invalid_option(self):
     #     args = ["-b", self.file1.name]
-    #     input = ["line1", "line1", "line2", "line2"]
+    #     inp = ["line1", "line1", "line2", "line2"]
     #     out = deque()
     #     # Raises FileNotFoundError
     #     with self.assertRaises(ValueError, msg="Should raise ValueError"):
-    #         self.uniq.exec(args, input, out)
+    #         self.uniq.exec(inp, out, args)
 
     def test_uniq_invalid_file(self):
         args = ["nofile.txt"]
-        input = []
+        inp = []
         out = deque()
         with self.assertRaises(FileNotFoundError):
-            self.uniq.exec(args, input, out)
+            self.uniq.exec(inp, out, args)
 
     def test_uniq_file_case_sensitive(self):
         args = [self.file1.name]
-        input = []
+        inp = []
         out = deque()
-        self.uniq.exec(args, input, out)
+        self.uniq.exec(inp, out, args)
         out = deque_to_str(out).strip().split()
         self.assertEqual(out, ['line1', 'line2', 'Line1'])
 
     # def test_uniq_file_case_insensitive(self):
     #     args = ['-i', self.file1.name]  # ignores case
-    #     input = []
+    #     inp = []
     #     out = deque()
-    #     self.uniq.exec(args, input, out)
+    #     self.uniq.exec(inp, out, args)
     #     out = deque_to_str(out).strip().split()
     #     self.assertEqual(out, ['line1', 'line2'])
 
