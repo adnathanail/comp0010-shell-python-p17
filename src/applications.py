@@ -4,7 +4,7 @@ from typing import List
 from abc import ABC, abstractmethod
 
 
-class Application(ABC):
+class Application(ABC):  # pragma: no cover
 
     @abstractmethod
     def exec(self, args, input, output):
@@ -206,7 +206,7 @@ class Cut(Application):
 
     def exec(self, args, input, output):
         if args[0] != "-b":
-            raise Exception("Please pass which bytes you would like with -b")
+            raise ValueError("Please pass which bytes you would like with -b")
         range_strings = args[1].split(",")
         ranges = []
         for rs in range_strings:

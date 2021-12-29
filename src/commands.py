@@ -22,7 +22,7 @@ def read_from_file(filename):
         raise FileNotFoundError(f"Could not find the file: {filename}")
 
 
-class Command(ABC):
+class Command(ABC):  # pragma: no cover
 
     @abstractmethod
     def eval(self, input, output):
