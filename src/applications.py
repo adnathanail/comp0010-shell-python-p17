@@ -372,8 +372,8 @@ class Mkdir(Application):
             os.mkdir(path, mode)
             output.append("Directory " + path + " is created.")
         except OSError as error:
-            print(error)
-            print(f"Directory {path} already exists.")
+            output.append(str(error) + "\n")
+            output.append(f"Directory {path} already exists.")
 
 
 class Rmdir(Application):
@@ -385,10 +385,10 @@ class Rmdir(Application):
         path = args[0]
         try:
             os.rmdir(path)
-            print(f"Directory {path} has been removed successfully.")
+            output.append(f"Directory {path} has been removed successfully.")
         except OSError as error:
-            print(error)
-            print(f"Directory {path} can not be removed.")
+            output.append(str(error) + "\n")
+            output.append(f"Directory {path} can not be removed.")
 
 
 class Chown(Application):
@@ -401,10 +401,10 @@ class Chown(Application):
         gid = args[2]
         try:
             os.chown(path, uid, gid)
-            print(f"Owner id of the file: {os.stat(path).st_uid}")
+            output.append(f"Owner id of the file: {os.stat(path).st_uid}")
         except OSError as error:
-            print(error)
-            print(f"Owner id of the file: {os.stat(path)} couldo be changed.")
+            output.append(str(error) + "\n")
+            output.append(f"Owner id of the file: {os.stat(path)} couldo be changed.")
 
 
 class Rm(Application):
@@ -416,8 +416,8 @@ class Rm(Application):
         try:
             os.remove(path)
         except OSError as error:
-            print(error)
-            print(f"{path} could not be deleted.")
+            output.append(str(error) + "\n")
+            output.append(f"{path} could not be deleted.")
 
 
 class ApplicationFactory:
