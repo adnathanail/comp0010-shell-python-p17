@@ -5,9 +5,9 @@ from glob import glob
 from antlr4 import InputStream, CommonTokenStream
 
 from commands import Command, Pipe, Seq, Call
-from parser.python.CommandLexer import CommandLexer
-from parser.python.CommandParser import CommandParser
-from parser.python.CommandVisitor import CommandVisitor
+from parser.CommandLexer import CommandLexer
+from parser.CommandParser import CommandParser
+from parser.CommandVisitor import CommandVisitor
 
 
 class Converter(CommandVisitor):

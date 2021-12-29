@@ -5,8 +5,8 @@ import sys
 from antlr4 import InputStream, CommonTokenStream
 
 from converter import Converter
-from parser.python.CommandLexer import CommandLexer
-from parser.python.CommandParser import CommandParser
+from parser.CommandLexer import CommandLexer
+from parser.CommandParser import CommandParser
 
 logging.DEBUG = False
 logging.basicConfig(format="%(message)s", level=logging.DEBUG)

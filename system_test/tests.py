@@ -1,7 +1,6 @@
-import sys
-import unittest
-import subprocess
 import re
+import subprocess
+import unittest
 
 
 class TestFEL(unittest.TestCase):
