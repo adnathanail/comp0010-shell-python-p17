@@ -86,6 +86,14 @@ class TestParser(unittest.TestCase):
         parse_tree = self.do_parse('echo "`echo foo`"')
         self.assertCallType(parse_tree, "Echo", ["foo"])
 
+    def test_substitution_multiple_args(self):
+        parse_tree = self.do_parse('echo `cat dir2/subdir/file.txt`')
+        self.assertCallType(parse_tree, "Echo", ["AAA", "aaa", "AAA"])
+
+    def test_dont_substitution(self):
+        parse_tree = self.do_parse('echo "cat dir2/subdir/file.txt"')
+        self.assertCallType(parse_tree, "Echo", ["cat dir2/subdir/file.txt"])
+
     def test_nested_doublequotes(self):
         parse_tree = self.do_parse('echo "a `echo "b"`"')
         self.assertCallType(parse_tree, "Echo", ["a b"])

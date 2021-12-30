@@ -104,10 +104,13 @@ class Converter(CommandVisitor):
             return
         # to be used ONLY with arguments outside redirections
         do_globbing = False
+        do_splitting = False
         arguments = ""
         for el in ctx.getChildren():
             if type(el).__name__ == "QuotedContext":
                 arguments += self.visitQuoted(el)
+                if el.BACKQUOTED():
+                    do_splitting = True
             else:  # unquoted content
                 s = el.getText()
                 if "*" in s:
@@ -115,8 +118,10 @@ class Converter(CommandVisitor):
                 arguments += s
         if do_globbing:
             arguments = glob(arguments)  # gives a list
-        else:
+        elif do_splitting:
             arguments = arguments.split(" ")
+        else:
+            arguments = [arguments]
         args.extend(arguments)
 
     # Visit a parse tree produced by CommandParser#redirection.
