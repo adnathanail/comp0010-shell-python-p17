@@ -61,7 +61,10 @@ class Converter(CommandVisitor):
             return pipe
 
     # Visit a parse tree produced by CommandParser#call.
-    def visitCall(self, ctx: CommandParser.CallContext) -> Union[Call, Command]:
+    def visitCall(
+        self,
+        ctx: CommandParser.CallContext
+    ) -> Union[Call, Command]:
         args = []
         if ctx is None:
             return Command()
