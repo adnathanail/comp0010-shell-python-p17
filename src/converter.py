@@ -106,7 +106,7 @@ class Converter(CommandVisitor):
         do_globbing = False
         arguments = ""
         for el in ctx.getChildren():
-            if isinstance(el, CommandParser.QuotedContext):
+            if type(el).__name__ == "QuotedContext":
                 arguments += self.visitQuoted(el)
             else:  # unquoted content
                 s = el.getText()
