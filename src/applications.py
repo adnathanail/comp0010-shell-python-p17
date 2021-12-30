@@ -1,4 +1,6 @@
+from collections import deque
 import os
+import sys
 import re
 from typing import List
 from abc import ABC, abstractmethod
@@ -17,9 +19,10 @@ class UnsafeWrapper(Application):
 
     def exec(self, inp, output, args):
         try:
-            self._app.exec(args, inp, output)
-        except Exception as err:
-            output.append(str(err))
+            self._app.exec(inp, output, args)
+        except Exception:  # catch errors
+            err = sys.exc_info()[1]
+            output.append(str(err)+"\n")
 
 
 class Pwd(Application):
@@ -36,7 +39,10 @@ class Cd(Application):
 
     def exec(self, inp, output, args):
         path = args[0]
-        os.chdir(path)
+        try:
+            os.chdir(path)
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Could not find path '{path}'")
 
 
 class Ls(Application):
@@ -69,8 +75,11 @@ class Cat(Application):
     def exec(self, inp, output, args):
         def read_content(filename):
             s = ""
-            with open(filename, "r") as f:
-                s += f.read()
+            try:
+                with open(filename, "r") as f:
+                    s += f.read()
+            except FileNotFoundError:
+                raise FileNotFoundError(f"Could not find file '{filename}'")
             return s
 
         if args:
@@ -281,23 +290,29 @@ class Uniq(Application):
     from an input file/stdin and prints the result to stdout.
     """
 
-    def exec(self, inp, output, args):
+    def exec(self, inp: str, output: deque, args: List):
         ignore_case = False
         filename = ''
-        if len(args) > 0 and args[0] == "-i":
-            ignore_case = True
-            if len(args) > 1:
-                filename = args[1]
-        else:
-            if len(args) > 0:
+        if len(args) == 0:  # use stdin
+            string_to_uniq = inp
+        elif len(args) == 1:
+            if args[0] == '-i':  # use flag + stdin
+                ignore_case = True
+                string_to_uniq = inp
+            else:  # use file
                 filename = args[0]
+        elif len(args) == 2:  # use flag + file
+            if args[0] == '-i':
+                ignore_case = True
+            else:
+                raise ValueError(f"Wrong flag '{args[0]}'")
+            filename = args[1]
+        else:
+            raise ValueError("Too many arguments")
         if filename:
             string_to_uniq = ""
             with open(filename, "r") as f:
                 string_to_uniq += f.read()
-        else:
-            string_to_uniq = inp
-
         rows_to_search = string_to_uniq.split("\n")
         current_row = None
         for i in range(len(rows_to_search) - 1):
@@ -356,26 +371,45 @@ class Sort(Application):
 
 
 class WCCounter:
-    def __init__(self, filenames: List[str]):
-        # l-lines, w-words, c-bytes, m-chars, L-length of longest lines
-        def calc_file_stats(fn):  # TODO: add Exceptions
-            d = {"l": 0, "w": 0, "c": 0, "m": 0, "L": 0}
-            with open(fn, 'r') as file:
-                d["c"] = os.path.getsize(fn)
-                for line in file:
-                    d["l"] += 1
-                    d["w"] += len(line.split())
-                    d["m"] += len(line)
-                    if len(line) > d["L"]:
-                        d["L"] = len(line)
-                return d
 
-        self.filenames = filenames
+    def __init__(self):
         self.data = {"l": [], "w": [], "c": [], "m": [], "L": []}
+        self.filenames = []
+
+    def run_on_files(self, filenames: List[str]):
+        self.filenames = filenames
         for filename in filenames:
-            res = calc_file_stats(filename)
+            res = self._calc_file_stats(filename)
             for k, v in self.data.items():
                 v.append(res[k])
+
+    def run_on_stdin(self, stdin: str):
+        self.filenames = ["stdin"]
+        res = self._calc_str_stats(stdin)
+        for k, v in self.data.items():
+            v.append(res[k])
+
+    def _calc_str_stats(self, s: str):
+        d = {"l": 0, "w": 0, "c": 0, "m": 0, "L": 0}
+        s_copy = s.encode('utf-8')
+        d["c"] = len(s_copy)  # assume: utf-8 encoding
+        d["m"] = len(s)
+        d["l"] = s.count("\n")
+        d["w"] = len(s.split())
+        d["L"] = max([len(line) for line in s.split("\n")])
+        return d
+
+    def _calc_file_stats(self, fn: str):
+        d = {"l": 0, "w": 0, "c": 0, "m": 0, "L": 0}
+        with open(fn, 'r') as file:
+            d["c"] = os.path.getsize(fn)
+            for line in file:
+                d["l"] += 1
+                d["w"] += len(line.split())
+                d["m"] += len(line)
+                if len(line) > d["L"]:
+                    d["L"] = len(line)
+            return d
 
     def _add_total_count(self):
         for v in self.data.values():
@@ -423,7 +457,7 @@ class Wc(Application):
     or multiple files or stdin if no file is specified.
     """
 
-    def exec(self, inp, output, args):
+    def exec(self, inp: List, output: deque, args: List):
         use_stdin = False
         flag = None
         if len(args) == 0:  # default counter + use stdin
@@ -440,10 +474,13 @@ class Wc(Application):
                 files = args[1:]
             else:
                 files = args
+        wc_counter = WCCounter()
         if use_stdin:  # if no files specified
-            files = inp.split()
-        wccounter = WCCounter(filenames=files)
-        res = wccounter.get_string_output(flag)
+            s = "".join(inp)
+            wc_counter.run_on_stdin(s)
+        else:
+            wc_counter.run_on_files(files)
+        res = wc_counter.get_string_output(flag)
         output.append(res)
 
 
