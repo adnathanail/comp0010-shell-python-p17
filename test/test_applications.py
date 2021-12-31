@@ -462,5 +462,81 @@ class TestWc(unittest.TestCase):
         self.assertEqual(out, correct)
 
 
+class TestCd(unittest.TestCase):
+    def setUp(self):
+        self.cd = app_factory.create("cd")
+        self.dir = TemporaryDirectory(dir=os.getcwd())
+        self.file1 = NamedTemporaryFile(mode="r", dir=self.dir.name)
+        self.file2 = NamedTemporaryFile(mode="r", dir=self.dir.name)
+        self.empty_dir = TemporaryDirectory(dir=os.getcwd())
+
+    def tearDown(self):
+        self.file2.close()
+        self.file1.close()
+        self.dir.cleanup()
+        self.empty_dir.cleanup()
+
+    def test_cd_no_args(self):
+        with self.assertRaises(ValueError):
+            args = []
+            inp = []
+            out = deque()
+            self.cd.exec(inp, out, args)
+
+    def test_cd_too_many_args(self):
+        with self.assertRaises(ValueError):
+            args = ["arg1", "arg2"]
+            inp = []
+            out = deque()
+            self.cd.exec(inp, out, args)
+
+    def test_cd_invalid_path(self):
+        with self.assertRaises(FileNotFoundError):
+            args = ["invalid_dir"]
+            inp = []
+            out = deque()
+            self.cd.exec(inp, out, args)
+
+
+class TestCat(unittest.TestCase):
+    def setUp(self):
+        self.cat = app_factory.create("cat")
+        self.file1 = NamedTemporaryFile("r+", delete=False)
+        self.file1.writelines([str(i) + "\n" for i in range(0, 100)])
+        self.file1.close()
+        self.file2 = NamedTemporaryFile("r+", delete=False)
+        self.file2.writelines([str(i) + "\n" for i in range(100, 200)])
+        self.file2.close()
+
+    def tearDown(self):
+        os.unlink(self.file1.name)
+        os.unlink(self.file2.name)
+        assert (not (os.path.exists(self.file1.name)) and
+                not (os.path.exists(self.file2.name)))
+
+    def test_cat_invalid_filename(self):
+        output = deque()
+        with self.assertRaises(FileNotFoundError):
+            self.cat.exec(args=["invalid_filename"], inp=[], output=output)
+
+    def test_cat_no_args(self):
+        output = deque()
+        self.cat.exec(args=[], inp=["input"], output=output)
+        self.assertEqual(output, "input")
+
+    def test_cat_single_arg(self):
+        output = deque()
+        fname = self.file1.name
+        self.cat.exec(args=[fname], inp=[], output=output)
+        self.assertEqual(output, [str(i) for i in range(0, 100)])
+
+    def test_cat_multiple_args(self):
+        output = deque()
+        fname1 = self.file1.name
+        fname2 = self.file2.name
+        self.cat.exec(args=[fname1, fname2], inp=[], output=output)
+        self.assertEqual(output, [str(i) for i in range(0, 200)])
+
+
 if __name__ == "__main__":
     unittest.main()

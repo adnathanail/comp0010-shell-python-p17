@@ -9,7 +9,7 @@ from typing import List
 class Application(ABC):  # pragma: no cover
 
     @abstractmethod
-    def exec(self, inp, output, args):
+    def exec(self, inp: List, output: deque, args: List):
         pass
 
 
@@ -17,7 +17,7 @@ class UnsafeWrapper(Application):
     def __init__(self, app):
         self._app = app
 
-    def exec(self, inp, output, args):
+    def exec(self, inp: List, output: deque, args: List):
         try:
             self._app.exec(inp, output, args)
         except Exception:  # catch errors
@@ -28,7 +28,7 @@ class UnsafeWrapper(Application):
 class Pwd(Application):
     """Prints current working directory"""
 
-    def exec(self, inp, output, args):
+    def exec(self, inp: List, output: deque, args: List):
         # no args, no input, there may be output
         cwd = os.getcwd() + "\n"
         output.append(cwd)
@@ -37,12 +37,15 @@ class Pwd(Application):
 class Cd(Application):
     """Changes current working directory"""
 
-    def exec(self, inp, output, args):
-        path = args[0]
-        try:
-            os.chdir(path)
-        except FileNotFoundError:
-            raise FileNotFoundError(f"Could not find path '{path}'")
+    def exec(self, inp: List, output: deque, args: List):
+        if len(args) == 1:
+            path = args[0]
+            try:
+                os.chdir(path)
+            except FileNotFoundError:
+                raise FileNotFoundError(f"Could not find path {path}")
+        else:
+            raise ValueError("Wrong number of command line arguments")
 
 
 class Ls(Application):
@@ -72,7 +75,7 @@ class Cat(Application):
     Concatenates the content of given files and prints it to stdout.
     """
 
-    def exec(self, inp, output, args):
+    def exec(self, inp: List, output: deque, args: List):
         def read_content(filename):
             s = ""
             try:
@@ -98,7 +101,7 @@ class Echo(Application):
     stdout.
     """
 
-    def exec(self, inp, output, args):
+    def exec(self, inp: List, output: deque, args: List):
         string = " ".join(args)
         string += "\n"
         output.append(string)
@@ -167,7 +170,7 @@ class Head(Application):
     without raising an exception.
     """
 
-    def exec(self, inp, output, args):
+    def exec(self, inp: List, output: deque, args: List):
         HeadOrTail().exec(args, inp, output, appObject=self)
 
 
@@ -178,7 +181,7 @@ class Tail(Application):
     without raising an exception.
     """
 
-    def exec(self, inp, output, args):
+    def exec(self, inp: List, output: deque, args: List):
         HeadOrTail().exec(args, inp, output, appObject=self)
 
 
@@ -189,7 +192,7 @@ class Grep(Application):
     Each line is printed followed by a newline.
     """
 
-    def exec(self, inp, output, args):
+    def exec(self, inp: List, output: deque, args: List):
         named_files_to_search = {}
         if len(args) > 1:
             for fn in args[1:]:
@@ -213,7 +216,7 @@ class Cut(Application):
     and prints the result to stdout.
     """
 
-    def exec(self, inp, output, args):
+    def exec(self, inp: List, output: deque, args: List):
         if args[0] != "-b":
             raise ValueError("Please pass which bytes you would like with -b")
         range_strings = args[1].split(",")
@@ -270,7 +273,7 @@ class Find(Application):
     Outputs the list of relative paths, each followed by a newline.
     """
 
-    def exec(self, inp, output, args):
+    def exec(self, inp: List, output: deque, args: List):
         if args[0] == "-name":
             directory_to_search = "."
             search_term = args[1]
@@ -333,7 +336,7 @@ class Sort(Application):
     stdout.
     """
 
-    def exec(self, inp, output, args):
+    def exec(self, inp: List, output: deque, args: List):
         use_stdin = False
         reverse = False
         if len(args) == 0:
@@ -375,61 +378,66 @@ class Mkdir(Application):
     Create a named folder at a given parent folder.
     """
 
-    def exec(self, args: List, input: List, output: List):
-        path = args[0]
-        mode = args[1]
-        try:
-            os.mkdir(path, mode)
-            output.append("Directory " + path + " is created.")
-        except OSError as error:
-            output.append(str(error) + "\n")
-            output.append(f"Directory {path} already exists.")
+    def exec(self, inp: List, output: deque, args: List):
+        if len(args) < 2:
+            raise ValueError("wrong number of command line arguments")
+        else:
+            path = args[0]
+            mode = args[1]
+            try:
+                os.mkdir(path, mode)
+            except OSError:
+                raise OSError(f"Directory {path} already exists.")
 
 
 class Rmdir(Application):
     """
-    Remove folder fom a given path.
+    Remove folder from a given path.
     """
 
-    def exec(self, args: List, input: List, output: List):
-        path = args[0]
-        try:
-            os.rmdir(path)
-            output.append(f"Directory {path} has been removed successfully.")
-        except OSError as error:
-            output.append(str(error) + "\n")
-            output.append(f"Directory {path} can not be removed.")
+    def exec(self, inp: List, output: deque, args: List):
+        if len(args) < 2:
+            raise ValueError("wrong number of command line arguments")
+        else:
+            path = args[0]
+            try:
+                os.rmdir(path)
+            except OSError:
+                raise OSError(f"Directory {path} can not be removed.")
 
 
 class Chown(Application):
     """
-    Change owner of a file.
+    Change owner of a file at a given path.
     """
 
-    def exec(self, args: List, input: List, output: List):
-        path = args[0]
-        uid = args[1]
-        gid = args[2]
-        try:
-            os.chown(path, uid, gid)
-            output.append(f"Owner id of the file: {os.stat(path).st_uid}")
-        except OSError as error:
-            output.append(str(error) + "\n")
-            output.append(f"Owner id of the file: {os.stat(path)} couldo be changed.")
+    def exec(self, inp: List, output: deque, args: List):
+        if len(args) < 2:
+            raise ValueError("wrong number of command line arguments")
+        else:
+            path = args[0]
+            uid = args[1]
+            gid = args[2]
+            try:
+                os.chown(path, uid, gid)
+            except OSError:
+                raise OSError(f"Owner id of the file: {os.stat(path)} couldo be changed.")
 
 
 class Rm(Application):
     """
-    Remove a file.
+    Remove a file from a given path.
     """
 
-    def exec(self, args: List, input: List, output: List):
-        path = args[0]
-        try:
-            os.remove(path)
-        except OSError as error:
-            output.append(str(error) + "\n")
-            output.append(f"{path} could not be deleted.")
+    def exec(self, inp: List, output: deque, args: List):
+        if len(args) < 2:
+            raise ValueError("wrong number of command line arguments")
+        else:
+            path = args[0]
+            try:
+                os.remove(path)
+            except OSError as error:
+                raise OSError(f"{path} could not be deleted.")
 
 
 class WCCounter:
