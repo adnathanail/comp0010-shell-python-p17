@@ -1,9 +1,9 @@
-from collections import deque
 import os
-import sys
 import re
-from typing import List
+import sys
 from abc import ABC, abstractmethod
+from collections import deque
+from typing import List
 
 
 class Application(ABC):  # pragma: no cover
@@ -22,7 +22,7 @@ class UnsafeWrapper(Application):
             self._app.exec(inp, output, args)
         except Exception:  # catch errors
             err = sys.exc_info()[1]
-            output.append(str(err)+"\n")
+            output.append(str(err) + "\n")
 
 
 class Pwd(Application):
@@ -370,7 +370,6 @@ class Sort(Application):
             raise FileNotFoundError("File was not found")
 
 
-<<<<<<< HEAD
 class Mkdir(Application):
     """
     Create a named folder at a given parent folder.
@@ -406,6 +405,7 @@ class Chown(Application):
     """
     Change owner of a file.
     """
+
     def exec(self, args: List, input: List, output: List):
         path = args[0]
         uid = args[1]
@@ -422,6 +422,7 @@ class Rm(Application):
     """
     Remove a file.
     """
+
     def exec(self, args: List, input: List, output: List):
         path = args[0]
         try:
@@ -429,7 +430,8 @@ class Rm(Application):
         except OSError as error:
             output.append(str(error) + "\n")
             output.append(f"{path} could not be deleted.")
-=======
+
+
 class WCCounter:
 
     def __init__(self):
@@ -480,6 +482,7 @@ class WCCounter:
     def _get_alignment(self):
         def calc_align(iterable):
             return max(map(lambda x: len(str(x)), iterable))
+
         align = dict()
         for k, v in self.data.items():
             align[k] = calc_align(v)
@@ -542,7 +545,6 @@ class Wc(Application):
             wc_counter.run_on_files(files)
         res = wc_counter.get_string_output(flag)
         output.append(res)
->>>>>>> master
 
 
 class ApplicationFactory:
@@ -559,14 +561,11 @@ class ApplicationFactory:
         "find": Find,
         "uniq": Uniq,
         "sort": Sort,
-<<<<<<< HEAD
         "mkdir": Mkdir,
         "rmdir": Rmdir,
         "chown": Chown,
-        "rm": Rm
-=======
-        "wc": Wc,
->>>>>>> master
+        "rm": Rm,
+        "wc": Wc
     }
 
     def create(self, app_name) -> Application:

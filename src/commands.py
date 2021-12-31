@@ -54,15 +54,14 @@ class Seq(Command):
 
 
 class Call(Command):
-
     app_factory = ApplicationFactory()
 
     def __init__(
-        self,
-        app_name: str,
-        args: List,
-        redirect_from: List,
-        redirect_to: List
+            self,
+            app_name: str,
+            args: List,
+            redirect_from: List,
+            redirect_to: List
     ):
         self.app = self.app_factory.create(app_name)
         self.args = args
