@@ -5,24 +5,23 @@ import sys
 from antlr4 import InputStream, CommonTokenStream
 
 from converter import Converter
-from parser.python.CommandLexer import CommandLexer
-from parser.python.CommandParser import CommandParser
+from parser.CommandLexer import CommandLexer
+from parser.CommandParser import CommandParser
 
 logging.DEBUG = False
 logging.basicConfig(format="%(message)s", level=logging.DEBUG)
 
 
-def run(cmdline):
-    lexer = CommandLexer(InputStream(cmdline))
+def run(input_string, output=None):  # output is used for testing purposes only
+    lexer = CommandLexer(InputStream(input_string))
     stream = CommonTokenStream(lexer)
     parser = CommandParser(stream)
     tree = parser.command()
     cmd = tree.accept(Converter())  # convert
-    cmd.eval()  # evaluate
-    logging.debug(f"{cmd}")
+    cmd.eval(output=output)  # evaluate
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     args_num = len(sys.argv) - 1
     if args_num > 0:  # non-interactive mode
         if args_num != 2:

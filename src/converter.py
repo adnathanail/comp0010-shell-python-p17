@@ -1,13 +1,13 @@
 import re
 from collections import deque
-from typing import List
+from typing import List, Union
 from glob import glob
 from antlr4 import InputStream, CommonTokenStream
 
 from commands import Command, Pipe, Seq, Call
-from parser.python.CommandLexer import CommandLexer
-from parser.python.CommandParser import CommandParser
-from parser.python.CommandVisitor import CommandVisitor
+from parser.CommandLexer import CommandLexer
+from parser.CommandParser import CommandParser
+from parser.CommandVisitor import CommandVisitor
 
 
 class Converter(CommandVisitor):
@@ -19,9 +19,7 @@ class Converter(CommandVisitor):
         pipeCtx = ctx.callPipe()
         seqCtx = ctx.commandSeq()
         # converting to proper commands
-        command = None
-        if callCtx:
-            command = self.visitCall(callCtx)
+        command = self.visitCall(callCtx)
         if pipeCtx:
             command = self.visitCallPipe(pipeCtx, command)
         if seqCtx:
@@ -42,13 +40,10 @@ class Converter(CommandVisitor):
         pipeCtx = ctx.callPipe()
         seqCtx = ctx.commandSeq()
         # add subcmd to commandSeq
-        subcmd = None
-        if callCtx:
-            subcmd = self.visitCall(callCtx)
+        subcmd = self.visitCall(callCtx)
         if pipeCtx:
             subcmd = self.visitCallPipe(pipeCtx, subcmd)
-        if subcmd is not None:
-            commandSeq.addCommand(subcmd)
+        commandSeq.add_command(subcmd)
         # continue traversing seq if there are cmds
         if seqCtx:
             self.visitCommandSeq(seqCtx, commandSeq)
@@ -66,66 +61,80 @@ class Converter(CommandVisitor):
             return pipe
 
     # Visit a parse tree produced by CommandParser#call.
-    def visitCall(self, ctx: CommandParser.CallContext) -> Call:
+    def visitCall(
+        self,
+        ctx: CommandParser.CallContext
+    ) -> Union[Call, Command]:
         args = []
+        if ctx is None:
+            return Command()
         # check for first arg, cmd subs. sensitive
         self.visitArgument(ctx.argument(), args)
+        if len(args) == 0:
+            return Command()
         app_name = args.pop(0)  # rest args are saved
         # get contexts
         redirectionCtx = ctx.redirection()
         atomCtx = ctx.atom()
         # Redirections and arguments from atom
-        redirectFrom, redirectTo = [], []
+        redirect_from, redirect_to = [], []
         for redirection in redirectionCtx:
-            self.visitRedirection(redirection, redirectFrom, redirectTo)
-        self.visitAtom(atomCtx, args, redirectFrom, redirectTo)
-        return Call(app_name, args, redirectFrom, redirectTo)
+            self.visitRedirection(redirection, redirect_from, redirect_to)
+        self.visitAtom(atomCtx, args, redirect_from, redirect_to)
+        return Call(app_name, args, redirect_from, redirect_to)
 
     # Visit a parse tree produced by CommandParser#atom.
     def visitAtom(
         self,
         ctx: CommandParser.AtomContext,
         args: List,
-        input: List,
+        inp: List,
         output: List
     ):
         for el in ctx:
             if el.redirection() is not None:
-                inputNew, outputNew = [], []
-                self.visitRedirection(el.redirection(), inputNew, outputNew)
-                input.extend(inputNew)
-                output.extend(outputNew)
+                input_new, output_new = [], []
+                self.visitRedirection(el.redirection(), input_new, output_new)
+                inp.extend(input_new)
+                output.extend(output_new)
             else:
                 # amend args list in visitArgument
                 self.visitArgument(el.argument(), args)
 
     # Visit a parse tree produced by CommandParser#argument.
     def visitArgument(self, ctx: CommandParser.ArgumentContext, args: List):
+        if ctx is None:
+            return
         # to be used ONLY with arguments outside redirections
         do_globbing = False
+        do_splitting = False
         arguments = ""
         for el in ctx.getChildren():
-            if isinstance(el, CommandParser.QuotedContext):
+            if type(el).__name__ == "QuotedContext":
                 arguments += self.visitQuoted(el)
+                if el.BACKQUOTED():
+                    do_splitting = True
             else:  # unquoted content
                 s = el.getText()
                 if "*" in s:
                     do_globbing = True
                 arguments += s
         if do_globbing:
-            arguments = glob(arguments) # gives a list
-        else:
+            arguments = glob(arguments)  # gives a list
+        elif do_splitting:
             arguments = arguments.split(" ")
+        else:
+            arguments = [arguments]
         args.extend(arguments)
 
     # Visit a parse tree produced by CommandParser#redirection.
     def visitRedirection(
-        self, ctx: CommandParser.RedirectionContext, input: List, output: List
+        self, ctx: CommandParser.RedirectionContext, inp: List, output: List
     ):
         sign = ctx.getChild(0).getText()
         filename = ctx.argument().getText()
         if sign == "<":
-            input.append(filename)
+            inp.append(filename)
         else:
             output.append(filename)
 
@@ -141,27 +150,27 @@ class Converter(CommandVisitor):
             subcmd = tree.accept(Converter())  # I will invoke new instance
             out = deque()
             subcmd.eval(output=out)
-            return "".join(out)
+            return "".join(out).strip()
 
         if ctx.SINGLE_QUOTED():  # treat as one argument
             return str(ctx.SINGLE_QUOTED())[1:-1]
 
-        if ctx.BACKQUOTED():
-            backquotedCmd = str(ctx.BACKQUOTED())[1:-1]
-            new_args = evaluateSubCmd(backquotedCmd)
+        elif ctx.BACKQUOTED():
+            backquoted_cmd = str(ctx.BACKQUOTED())[1:-1]
+            new_args = evaluateSubCmd(backquoted_cmd)
             new_args = new_args.replace("\n", " ")
             new_args = new_args.strip()
             return new_args
 
-        if ctx.DOUBLE_QUOTED():
+        else:  # ctx.DOUBLE_QUOTED():
             # do cmd subs. if needed, then treat as single arg
             doublequoted = str(ctx.DOUBLE_QUOTED())[1:-1]
             # search for backquoted parts
             matches = re.findall("`[^`]*`", doublequoted)
             if len(matches) > 0:  # do cmd subs.
                 for match in matches:
-                    matchCmd = match[1:-1]
-                    new_args = evaluateSubCmd(matchCmd)
+                    match_cmd = match[1:-1]
+                    new_args = evaluateSubCmd(match_cmd)
                     # replace 1st occurence of match with its evaluation
                     doublequoted = doublequoted.replace(match, new_args, 1)
             # after substituting potential subcmds, treat as single arg

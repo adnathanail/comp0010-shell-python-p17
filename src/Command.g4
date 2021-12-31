@@ -16,7 +16,7 @@ WHITESPACE          : ' ' | '\t' ;
  * Parser Rules
  */
 
-command : ((call callPipe?) commandSeq?) EOF ;
+command : ((call callPipe?) commandSeq?)? EOF ;
 commandSeq : ';' (call callPipe?) commandSeq? ;
 callPipe : '|' call callPipe?;
 
