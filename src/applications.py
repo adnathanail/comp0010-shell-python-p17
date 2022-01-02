@@ -336,7 +336,7 @@ class Sort(Application):
     stdout.
     """
 
-    def exec(self, inp: List, output: deque, args: List):
+    def exec(self, inp: str, output: deque, args: List):
         use_stdin = False
         reverse = False
         if len(args) == 0:
@@ -412,16 +412,18 @@ class Chown(Application):
     """
 
     def exec(self, inp: List, output: deque, args: List):
-        if len(args) < 2:
+        if len(args) != 3:
             raise ValueError("wrong number of command line arguments")
+        if (args[1].is_digit() == False or args[1].is_digit() == False):
+            raise ValueError("UID or GID is not a number")
         else:
             path = args[0]
-            uid = args[1]
-            gid = args[2]
+            uid = int(args[1])
+            gid = int(args[2])
             try:
                 os.chown(path, uid, gid)
             except OSError:
-                raise OSError(f"Owner id of the file: {os.stat(path)} couldo be changed.")
+                raise OSError(f"Owner id of the file: {os.stat(path)} could not be changed.")
 
 
 class Rm(Application):
@@ -430,13 +432,13 @@ class Rm(Application):
     """
 
     def exec(self, inp: List, output: deque, args: List):
-        if len(args) < 2:
+        if len(args) != 1:
             raise ValueError("wrong number of command line arguments")
         else:
             path = args[0]
             try:
                 os.remove(path)
-            except OSError as error:
+            except OSError:
                 raise OSError(f"{path} could not be deleted.")
 
 

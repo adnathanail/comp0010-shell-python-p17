@@ -125,6 +125,41 @@ Sorts the contents of a file/stdin line by line and prints the result to stdout.
     - `-r` sorts lines in reverse order
 - `FILE` is the name of the file. If not specified, uses stdin.
 
+## mkdir
+
+Creates a directory in a given path with a specified numeric mode
+
+    mkdir [PATH] [MODE]
+
+- `PATH` is a path-like object representing a file system path
+- `MODE` is an Integer value representing mode of the directory to be created
+
+## rmdir
+
+Removes a directory from a given path
+
+    rmdir [PATH]
+
+- `PATH` is a path-like object representing a file system path
+
+## chown
+
+Changes the group and owner of the specified path to the specified numeric group and owner id.
+
+    chown [PATH] [UID] [GID]
+
+- `PATH` is representing the file whose uid and gid is to be changed
+- `UID` an Integer value representing the owner id to be set for the file.
+- `GID` an Integer value representing the group id to be set for the file.
+
+## rm
+
+Removes a file from  given path
+
+    rmdir [PATH]
+
+- `PATH` is representing the file which will be deleted
+
 ## wc
 
 wc stands for word count and is used for counting purposes. By default (no flag) it prints four-columnar output:
