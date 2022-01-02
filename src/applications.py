@@ -101,7 +101,7 @@ class Echo(Application):
     stdout.
     """
 
-    def exec(self, inp: List, output: deque, args: List):
+    def exec(self, inp, output: deque, args: List):
         string = " ".join(args)
         string += "\n"
         output.append(string)
@@ -396,7 +396,7 @@ class Rmdir(Application):
     """
 
     def exec(self, inp: List, output: deque, args: List):
-        if len(args) < 2:
+        if len(args) < 1:
             raise ValueError("wrong number of command line arguments")
         else:
             path = args[0]
@@ -414,7 +414,7 @@ class Chown(Application):
     def exec(self, inp: List, output: deque, args: List):
         if len(args) != 3:
             raise ValueError("wrong number of command line arguments")
-        if (args[1].is_digit() == False or args[1].is_digit() == False):
+        if (args[1].isnumeric() == False or args[1].isnumeric() == False):
             raise ValueError("UID or GID is not a number")
         else:
             path = args[0]
