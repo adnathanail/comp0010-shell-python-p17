@@ -520,7 +520,8 @@ class TestCat(unittest.TestCase):
     def test_cat_invalid_filename(self):
         output = deque()
         with self.assertRaises(FileNotFoundError):
-            self.cat.exec(args=["invalid_filename"], inp=[], output=output)
+            self.cat.exec(args=["invalid_filename"], inp=[],
+                          output=output)
 
     def test_cat_no_args(self):
         output = deque()
@@ -549,8 +550,14 @@ class TestFind(unittest.TestCase):
         self.find = app_factory.create("find")
         self.dir1 = TemporaryDirectory(dir=os.getcwd())
         self.dir2 = TemporaryDirectory(dir=os.getcwd())
-        self.file1 = NamedTemporaryFile(mode="r+", dir=self.dir1.name, suffix=".txt", prefix="file1")
-        self.file2 = NamedTemporaryFile(mode="r+", dir=self.dir2.name, suffix=".txt", prefix="file2")
+        self.file1 = NamedTemporaryFile(mode="r+",
+                                        dir=self.dir1.name,
+                                        suffix=".txt",
+                                        prefix="file1")
+        self.file2 = NamedTemporaryFile(mode="r+",
+                                        dir=self.dir2.name,
+                                        suffix=".txt",
+                                        prefix="file2")
 
     def tearDown(self):
         self.file1.close()
@@ -560,7 +567,8 @@ class TestFind(unittest.TestCase):
 
     def test_find_no_match(self):
         output = deque()
-        self.find.exec(args=["-name", "invalid_filename"], inp=[], output=output)
+        self.find.exec(args=["-name", "invalid_filename"],
+                       inp=[], output=output)
         output = deque_to_str(output).split("\n")
         self.assertEqual(output, [])
 
@@ -584,8 +592,11 @@ class TestSort(unittest.TestCase):
     def setUp(self):
         self.sort = app_factory.create("sort")
         self.dir = TemporaryDirectory(dir=os.getcwd())
-        self.file = NamedTemporaryFile(mode="r+", dir=self.dir.name, suffix=".txt", prefix="file")
-        self.file.write("AAA\nAAA\nBBB")
+        self.file = NamedTemporaryFile(mode="r+",
+                                       dir=self.dir.name,
+                                       suffix=".txt",
+                                       prefix="file")
+        self.file.write("AAA\nAAA\nBBB\n")
         self.file.seek(0)
 
     def tearDown(self):
@@ -626,7 +637,8 @@ class TestSort(unittest.TestCase):
     def test_sort_invalid_filename(self):
         output = deque()
         with self.assertRaises(FileNotFoundError):
-            self.sort.exec(args=["invalid_filename.txt"], inp=[], output=output)
+            self.sort.exec(args=["invalid_filename.txt"],
+                           inp=[], output=output)
 
 
 class TestGrep(unittest.TestCase):
@@ -634,10 +646,16 @@ class TestGrep(unittest.TestCase):
         self.grep = app_factory.create("grep")
         self.dir1 = TemporaryDirectory(dir=os.getcwd())
         self.dir2 = TemporaryDirectory(dir=os.getcwd())
-        self.file1 = NamedTemporaryFile(mode="r+", dir=self.dir1.name, suffix=".txt", prefix="file")
-        self.file2 = NamedTemporaryFile(mode="r+", dir=self.dir2.name, suffix=".txt", prefix="file")
-        self.file1.write("AAA\nAAA\nBBB")
-        self.file2.write("AAA\nAAA\nBBB")
+        self.file1 = NamedTemporaryFile(mode="r+",
+                                        dir=self.dir1.name,
+                                        suffix=".txt",
+                                        prefix="file")
+        self.file2 = NamedTemporaryFile(mode="r+",
+                                        dir=self.dir2.name,
+                                        suffix=".txt",
+                                        prefix="file")
+        self.file1.write("AAA\nAAA\nBBB\n")
+        self.file2.write("AAA\nAAA\nBBB\n")
         self.file1.seek(0)
         self.file2.seek(0)
 
@@ -731,7 +749,7 @@ class TestRmdir(unittest.TestCase):
         with self.assertRaises(OSError):
             self.rmdir.exec(args=[f"{os.getcwd()}/invalid_dirname", "0o777"], inp=[], output=output)
 
-    def test_mkdir_create(self):
+    def test_rmdir_create(self):
         output = deque()
         path = f"{os.getcwd()}/{self.empty_dir.name}"
         self.rmdir.exec(args=[path], inp=[], output=output)
@@ -796,7 +814,7 @@ class TestRm(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.rm.exec(args=["arg1", "arg2"], inp=[], output=output)
 
-    def test_chown_invalid_path(self):
+    def test_rm_invalid_path(self):
         output = deque()
         with self.assertRaises(OSError):
             self.rm.exec(args=["invalid_path"], inp=[], output=output)

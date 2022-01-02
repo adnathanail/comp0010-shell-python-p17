@@ -4,6 +4,7 @@ import unittest
 
 
 class TestFEL(unittest.TestCase):
+
     SHELL_IMAGE = "comp0010-system-test"
     TEST_VOLUME = "comp0010-test-volume"
     TEST_IMAGE = "comp0010-test-image"
