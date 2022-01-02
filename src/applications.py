@@ -1,15 +1,15 @@
-from collections import deque
 import os
-import sys
 import re
-from typing import List
+import sys
 from abc import ABC, abstractmethod
+from collections import deque
+from typing import List
 
 
 class Application(ABC):  # pragma: no cover
 
     @abstractmethod
-    def exec(self, inp, output, args):
+    def exec(self, inp: List, output: deque, args: List):
         pass
 
 
@@ -17,18 +17,18 @@ class UnsafeWrapper(Application):
     def __init__(self, app):
         self._app = app
 
-    def exec(self, inp, output, args):
+    def exec(self, inp: List, output: deque, args: List):
         try:
             self._app.exec(inp, output, args)
         except Exception:  # catch errors
             err = sys.exc_info()[1]
-            output.append(str(err)+"\n")
+            output.append(str(err) + "\n")
 
 
 class Pwd(Application):
     """Prints current working directory"""
 
-    def exec(self, inp, output, args):
+    def exec(self, inp: List, output: deque, args: List):
         # no args, no input, there may be output
         cwd = os.getcwd() + "\n"
         output.append(cwd)
@@ -37,12 +37,15 @@ class Pwd(Application):
 class Cd(Application):
     """Changes current working directory"""
 
-    def exec(self, inp, output, args):
-        path = args[0]
-        try:
-            os.chdir(path)
-        except FileNotFoundError:
-            raise FileNotFoundError(f"Could not find path '{path}'")
+    def exec(self, inp: List, output: deque, args: List):
+        if len(args) == 1:
+            path = args[0]
+            try:
+                os.chdir(path)
+            except FileNotFoundError:
+                raise FileNotFoundError(f"Could not find path {path}")
+        else:
+            raise ValueError("Wrong number of command line arguments")
 
 
 class Ls(Application):
@@ -72,7 +75,7 @@ class Cat(Application):
     Concatenates the content of given files and prints it to stdout.
     """
 
-    def exec(self, inp, output, args):
+    def exec(self, inp: List, output: deque, args: List):
         def read_content(filename):
             s = ""
             try:
@@ -98,7 +101,7 @@ class Echo(Application):
     stdout.
     """
 
-    def exec(self, inp, output, args):
+    def exec(self, inp: List, output: deque, args: List):
         string = " ".join(args)
         string += "\n"
         output.append(string)
@@ -167,7 +170,7 @@ class Head(Application):
     without raising an exception.
     """
 
-    def exec(self, inp, output, args):
+    def exec(self, inp: List, output: deque, args: List):
         HeadOrTail().exec(args, inp, output, appObject=self)
 
 
@@ -178,7 +181,7 @@ class Tail(Application):
     without raising an exception.
     """
 
-    def exec(self, inp, output, args):
+    def exec(self, inp: List, output: deque, args: List):
         HeadOrTail().exec(args, inp, output, appObject=self)
 
 
@@ -189,7 +192,7 @@ class Grep(Application):
     Each line is printed followed by a newline.
     """
 
-    def exec(self, inp, output, args):
+    def exec(self, inp: List, output: deque, args: List):
         named_files_to_search = {}
         if len(args) > 1:
             for fn in args[1:]:
@@ -213,7 +216,7 @@ class Cut(Application):
     and prints the result to stdout.
     """
 
-    def exec(self, inp, output, args):
+    def exec(self, inp: List, output: deque, args: List):
         if args[0] != "-b":
             raise ValueError("Please pass which bytes you would like with -b")
         range_strings = args[1].split(",")
@@ -258,7 +261,7 @@ class Cut(Application):
                                 row_output[i] = row[i]
                     else:
                         if 1 <= rng[0] <= len(row) \
-                           and rng[0] <= rng[1] <= len(row):
+                                and rng[0] <= rng[1] <= len(row):
                             for i in range(rng[0] - 1, rng[1]):
                                 row_output[i] = row[i]
             output += "".join(row_output) + "\n"
@@ -270,7 +273,7 @@ class Find(Application):
     Outputs the list of relative paths, each followed by a newline.
     """
 
-    def exec(self, inp, output, args):
+    def exec(self, inp: List, output: deque, args: List):
         if args[0] == "-name":
             directory_to_search = "."
             search_term = args[1]
@@ -280,7 +283,7 @@ class Find(Application):
         for (dirpath, dirnames, filenames) in os.walk(directory_to_search):
             for fn in filenames:
                 if fn == search_term or \
-                   re.match(search_term.replace("*", ".*"), fn):
+                        re.match(search_term.replace("*", ".*"), fn):
                     output += str(dirpath) + "/" + str(fn) + "\n"
 
 
@@ -318,7 +321,7 @@ class Uniq(Application):
         for i in range(len(rows_to_search) - 1):
             if ignore_case:
                 if current_row is not None and \
-                   rows_to_search[i].lower() == current_row.lower():
+                        rows_to_search[i].lower() == current_row.lower():
                     continue
             else:
                 if rows_to_search[i] == current_row:
@@ -333,7 +336,7 @@ class Sort(Application):
     stdout.
     """
 
-    def exec(self, inp, output, args):
+    def exec(self, inp: str, output: deque, args: List):
         use_stdin = False
         reverse = False
         if len(args) == 0:
@@ -368,6 +371,75 @@ class Sort(Application):
             output.append(content)
         except FileNotFoundError:
             raise FileNotFoundError("File was not found")
+
+
+class Mkdir(Application):
+    """
+    Create a named folder at a given parent folder.
+    """
+
+    def exec(self, inp: List, output: deque, args: List):
+        if len(args) < 2:
+            raise ValueError("wrong number of command line arguments")
+        else:
+            path = args[0]
+            mode = args[1]
+            try:
+                os.mkdir(path, mode)
+            except OSError:
+                raise OSError(f"Directory {path} already exists.")
+
+
+class Rmdir(Application):
+    """
+    Remove folder from a given path.
+    """
+
+    def exec(self, inp: List, output: deque, args: List):
+        if len(args) < 2:
+            raise ValueError("wrong number of command line arguments")
+        else:
+            path = args[0]
+            try:
+                os.rmdir(path)
+            except OSError:
+                raise OSError(f"Directory {path} can not be removed.")
+
+
+class Chown(Application):
+    """
+    Change owner of a file at a given path.
+    """
+
+    def exec(self, inp: List, output: deque, args: List):
+        if len(args) != 3:
+            raise ValueError("wrong number of command line arguments")
+        if (args[1].is_digit() == False or args[1].is_digit() == False):
+            raise ValueError("UID or GID is not a number")
+        else:
+            path = args[0]
+            uid = int(args[1])
+            gid = int(args[2])
+            try:
+                os.chown(path, uid, gid)
+            except OSError:
+                raise OSError(f"Owner id of the file: {os.stat(path)} could not be changed.")
+
+
+class Rm(Application):
+    """
+    Remove a file from a given path.
+    """
+
+    def exec(self, inp: List, output: deque, args: List):
+        if len(args) != 1:
+            raise ValueError("wrong number of command line arguments")
+        else:
+            path = args[0]
+            try:
+                os.remove(path)
+            except OSError:
+                raise OSError(f"{path} could not be deleted.")
 
 
 class WCCounter:
@@ -420,6 +492,7 @@ class WCCounter:
     def _get_alignment(self):
         def calc_align(iterable):
             return max(map(lambda x: len(str(x)), iterable))
+
         align = dict()
         for k, v in self.data.items():
             align[k] = calc_align(v)
@@ -498,7 +571,11 @@ class ApplicationFactory:
         "find": Find,
         "uniq": Uniq,
         "sort": Sort,
-        "wc": Wc,
+        "mkdir": Mkdir,
+        "rmdir": Rmdir,
+        "chown": Chown,
+        "rm": Rm,
+        "wc": Wc
     }
 
     def create(self, app_name) -> Application:

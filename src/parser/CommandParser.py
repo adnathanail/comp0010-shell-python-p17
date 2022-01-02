@@ -1,12 +1,14 @@
 # Generated from Command.g4 by ANTLR 4.9.2
 # encoding: utf-8
-from antlr4 import *
-from io import StringIO
 import sys
+from io import StringIO
+
+from antlr4 import *
+
 if sys.version_info[1] > 5:
-	from typing import TextIO
+    from typing import TextIO
 else:
-	from typing.io import TextIO
+    from typing.io import TextIO
 
 
 def serializedATN():
@@ -50,21 +52,20 @@ def serializedATN():
         return buf.getvalue()
 
 
-class CommandParser ( Parser ):
-
+class CommandParser(Parser):
     grammarFileName = "Command.g4"
 
     atn = ATNDeserializer().deserialize(serializedATN())
 
-    decisionsToDFA = [ DFA(ds, i) for i, ds in enumerate(atn.decisionToState) ]
+    decisionsToDFA = [DFA(ds, i) for i, ds in enumerate(atn.decisionToState)]
 
     sharedContextCache = PredictionContextCache()
 
-    literalNames = [ "<INVALID>", "';'", "'|'", "'<'", "'>'" ]
+    literalNames = ["<INVALID>", "';'", "'|'", "'<'", "'>'"]
 
-    symbolicNames = [ "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "SINGLE_QUOTED", "BACKQUOTED", "DOUBLE_QUOTED", 
-                      "UNQUOTED_CONTENT", "WHITESPACE" ]
+    symbolicNames = ["<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>",
+                     "<INVALID>", "SINGLE_QUOTED", "BACKQUOTED", "DOUBLE_QUOTED",
+                     "UNQUOTED_CONTENT", "WHITESPACE"]
 
     RULE_command = 0
     RULE_commandSeq = 1
@@ -75,33 +76,30 @@ class CommandParser ( Parser ):
     RULE_redirection = 6
     RULE_quoted = 7
 
-    ruleNames =  [ "command", "commandSeq", "callPipe", "call", "atom", 
-                   "argument", "redirection", "quoted" ]
+    ruleNames = ["command", "commandSeq", "callPipe", "call", "atom",
+                 "argument", "redirection", "quoted"]
 
     EOF = Token.EOF
-    T__0=1
-    T__1=2
-    T__2=3
-    T__3=4
-    SINGLE_QUOTED=5
-    BACKQUOTED=6
-    DOUBLE_QUOTED=7
-    UNQUOTED_CONTENT=8
-    WHITESPACE=9
+    T__0 = 1
+    T__1 = 2
+    T__2 = 3
+    T__3 = 4
+    SINGLE_QUOTED = 5
+    BACKQUOTED = 6
+    DOUBLE_QUOTED = 7
+    UNQUOTED_CONTENT = 8
+    WHITESPACE = 9
 
-    def __init__(self, input:TokenStream, output:TextIO = sys.stdout):
+    def __init__(self, input: TokenStream, output: TextIO = sys.stdout):
         super().__init__(input, output)
         self.checkVersion("4.9.2")
         self._interp = ParserATNSimulator(self, self.atn, self.decisionsToDFA, self.sharedContextCache)
         self._predicates = None
 
-
-
-
     class CommandContext(ParserRuleContext):
         __slots__ = 'parser'
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(self, parser, parent: ParserRuleContext = None, invokingState: int = -1):
             super().__init__(parent, invokingState)
             self.parser = parser
 
@@ -109,67 +107,60 @@ class CommandParser ( Parser ):
             return self.getToken(CommandParser.EOF, 0)
 
         def call(self):
-            return self.getTypedRuleContext(CommandParser.CallContext,0)
-
+            return self.getTypedRuleContext(CommandParser.CallContext, 0)
 
         def commandSeq(self):
-            return self.getTypedRuleContext(CommandParser.CommandSeqContext,0)
-
+            return self.getTypedRuleContext(CommandParser.CommandSeqContext, 0)
 
         def callPipe(self):
-            return self.getTypedRuleContext(CommandParser.CallPipeContext,0)
-
+            return self.getTypedRuleContext(CommandParser.CallPipeContext, 0)
 
         def getRuleIndex(self):
             return CommandParser.RULE_command
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterCommand" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterCommand"):
                 listener.enterCommand(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitCommand" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitCommand"):
                 listener.exitCommand(self)
 
-        def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitCommand" ):
+        def accept(self, visitor: ParseTreeVisitor):
+            if hasattr(visitor, "visitCommand"):
                 return visitor.visitCommand(self)
             else:
                 return visitor.visitChildren(self)
-
-
-
 
     def command(self):
 
         localctx = CommandParser.CommandContext(self, self._ctx, self.state)
         self.enterRule(localctx, 0, self.RULE_command)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 23
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << CommandParser.T__2) | (1 << CommandParser.T__3) | (1 << CommandParser.SINGLE_QUOTED) | (1 << CommandParser.BACKQUOTED) | (1 << CommandParser.DOUBLE_QUOTED) | (1 << CommandParser.UNQUOTED_CONTENT) | (1 << CommandParser.WHITESPACE))) != 0):
+            if (((_la) & ~0x3f) == 0 and ((1 << _la) & (
+                    (1 << CommandParser.T__2) | (1 << CommandParser.T__3) | (1 << CommandParser.SINGLE_QUOTED) | (
+                    1 << CommandParser.BACKQUOTED) | (1 << CommandParser.DOUBLE_QUOTED) | (
+                            1 << CommandParser.UNQUOTED_CONTENT) | (1 << CommandParser.WHITESPACE))) != 0):
                 self.state = 16
                 self.call()
                 self.state = 18
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if _la==CommandParser.T__1:
+                if _la == CommandParser.T__1:
                     self.state = 17
                     self.callPipe()
-
 
                 self.state = 21
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if _la==CommandParser.T__0:
+                if _la == CommandParser.T__0:
                     self.state = 20
                     self.commandSeq()
-
-
-
 
             self.state = 25
             self.match(CommandParser.EOF)
@@ -181,51 +172,44 @@ class CommandParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class CommandSeqContext(ParserRuleContext):
         __slots__ = 'parser'
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(self, parser, parent: ParserRuleContext = None, invokingState: int = -1):
             super().__init__(parent, invokingState)
             self.parser = parser
 
         def call(self):
-            return self.getTypedRuleContext(CommandParser.CallContext,0)
-
+            return self.getTypedRuleContext(CommandParser.CallContext, 0)
 
         def commandSeq(self):
-            return self.getTypedRuleContext(CommandParser.CommandSeqContext,0)
-
+            return self.getTypedRuleContext(CommandParser.CommandSeqContext, 0)
 
         def callPipe(self):
-            return self.getTypedRuleContext(CommandParser.CallPipeContext,0)
-
+            return self.getTypedRuleContext(CommandParser.CallPipeContext, 0)
 
         def getRuleIndex(self):
             return CommandParser.RULE_commandSeq
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterCommandSeq" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterCommandSeq"):
                 listener.enterCommandSeq(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitCommandSeq" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitCommandSeq"):
                 listener.exitCommandSeq(self)
 
-        def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitCommandSeq" ):
+        def accept(self, visitor: ParseTreeVisitor):
+            if hasattr(visitor, "visitCommandSeq"):
                 return visitor.visitCommandSeq(self)
             else:
                 return visitor.visitChildren(self)
-
-
-
 
     def commandSeq(self):
 
         localctx = CommandParser.CommandSeqContext(self, self._ctx, self.state)
         self.enterRule(localctx, 2, self.RULE_commandSeq)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 27
@@ -236,15 +220,14 @@ class CommandParser ( Parser ):
             self.state = 30
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==CommandParser.T__1:
+            if _la == CommandParser.T__1:
                 self.state = 29
                 self.callPipe()
-
 
             self.state = 33
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==CommandParser.T__0:
+            if _la == CommandParser.T__0:
                 self.state = 32
                 self.commandSeq()
 
@@ -257,47 +240,41 @@ class CommandParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class CallPipeContext(ParserRuleContext):
         __slots__ = 'parser'
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(self, parser, parent: ParserRuleContext = None, invokingState: int = -1):
             super().__init__(parent, invokingState)
             self.parser = parser
 
         def call(self):
-            return self.getTypedRuleContext(CommandParser.CallContext,0)
-
+            return self.getTypedRuleContext(CommandParser.CallContext, 0)
 
         def callPipe(self):
-            return self.getTypedRuleContext(CommandParser.CallPipeContext,0)
-
+            return self.getTypedRuleContext(CommandParser.CallPipeContext, 0)
 
         def getRuleIndex(self):
             return CommandParser.RULE_callPipe
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterCallPipe" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterCallPipe"):
                 listener.enterCallPipe(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitCallPipe" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitCallPipe"):
                 listener.exitCallPipe(self)
 
-        def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitCallPipe" ):
+        def accept(self, visitor: ParseTreeVisitor):
+            if hasattr(visitor, "visitCallPipe"):
                 return visitor.visitCallPipe(self)
             else:
                 return visitor.visitChildren(self)
-
-
-
 
     def callPipe(self):
 
         localctx = CommandParser.CallPipeContext(self, self._ctx, self.state)
         self.enterRule(localctx, 4, self.RULE_callPipe)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 35
@@ -307,7 +284,7 @@ class CommandParser ( Parser ):
             self.state = 38
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==CommandParser.T__1:
+            if _la == CommandParser.T__1:
                 self.state = 37
                 self.callPipe()
 
@@ -320,69 +297,62 @@ class CommandParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class CallContext(ParserRuleContext):
         __slots__ = 'parser'
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(self, parser, parent: ParserRuleContext = None, invokingState: int = -1):
             super().__init__(parent, invokingState)
             self.parser = parser
 
         def argument(self):
-            return self.getTypedRuleContext(CommandParser.ArgumentContext,0)
+            return self.getTypedRuleContext(CommandParser.ArgumentContext, 0)
 
-
-        def WHITESPACE(self, i:int=None):
+        def WHITESPACE(self, i: int = None):
             if i is None:
                 return self.getTokens(CommandParser.WHITESPACE)
             else:
                 return self.getToken(CommandParser.WHITESPACE, i)
 
-        def redirection(self, i:int=None):
+        def redirection(self, i: int = None):
             if i is None:
                 return self.getTypedRuleContexts(CommandParser.RedirectionContext)
             else:
-                return self.getTypedRuleContext(CommandParser.RedirectionContext,i)
+                return self.getTypedRuleContext(CommandParser.RedirectionContext, i)
 
-
-        def atom(self, i:int=None):
+        def atom(self, i: int = None):
             if i is None:
                 return self.getTypedRuleContexts(CommandParser.AtomContext)
             else:
-                return self.getTypedRuleContext(CommandParser.AtomContext,i)
-
+                return self.getTypedRuleContext(CommandParser.AtomContext, i)
 
         def getRuleIndex(self):
             return CommandParser.RULE_call
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterCall" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterCall"):
                 listener.enterCall(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitCall" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitCall"):
                 listener.exitCall(self)
 
-        def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitCall" ):
+        def accept(self, visitor: ParseTreeVisitor):
+            if hasattr(visitor, "visitCall"):
                 return visitor.visitCall(self)
             else:
                 return visitor.visitChildren(self)
-
-
-
 
     def call(self):
 
         localctx = CommandParser.CallContext(self, self._ctx, self.state)
         self.enterRule(localctx, 6, self.RULE_call)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 43
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while _la==CommandParser.WHITESPACE:
+            while _la == CommandParser.WHITESPACE:
                 self.state = 40
                 self.match(CommandParser.WHITESPACE)
                 self.state = 45
@@ -392,13 +362,13 @@ class CommandParser ( Parser ):
             self.state = 55
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while _la==CommandParser.T__2 or _la==CommandParser.T__3:
+            while _la == CommandParser.T__2 or _la == CommandParser.T__3:
                 self.state = 46
                 self.redirection()
                 self.state = 50
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                while _la==CommandParser.WHITESPACE:
+                while _la == CommandParser.WHITESPACE:
                     self.state = 47
                     self.match(CommandParser.WHITESPACE)
                     self.state = 52
@@ -413,13 +383,13 @@ class CommandParser ( Parser ):
             self.argument()
             self.state = 68
             self._errHandler.sync(self)
-            _alt = self._interp.adaptivePredict(self._input,10,self._ctx)
-            while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
-                if _alt==1:
+            _alt = self._interp.adaptivePredict(self._input, 10, self._ctx)
+            while _alt != 2 and _alt != ATN.INVALID_ALT_NUMBER:
+                if _alt == 1:
                     self.state = 62
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
-                    while _la==CommandParser.WHITESPACE:
+                    while _la == CommandParser.WHITESPACE:
                         self.state = 59
                         self.match(CommandParser.WHITESPACE)
                         self.state = 64
@@ -427,15 +397,15 @@ class CommandParser ( Parser ):
                         _la = self._input.LA(1)
 
                     self.state = 65
-                    self.atom() 
+                    self.atom()
                 self.state = 70
                 self._errHandler.sync(self)
-                _alt = self._interp.adaptivePredict(self._input,10,self._ctx)
+                _alt = self._interp.adaptivePredict(self._input, 10, self._ctx)
 
             self.state = 74
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while _la==CommandParser.WHITESPACE:
+            while _la == CommandParser.WHITESPACE:
                 self.state = 71
                 self.match(CommandParser.WHITESPACE)
                 self.state = 76
@@ -450,41 +420,35 @@ class CommandParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class AtomContext(ParserRuleContext):
         __slots__ = 'parser'
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(self, parser, parent: ParserRuleContext = None, invokingState: int = -1):
             super().__init__(parent, invokingState)
             self.parser = parser
 
         def redirection(self):
-            return self.getTypedRuleContext(CommandParser.RedirectionContext,0)
-
+            return self.getTypedRuleContext(CommandParser.RedirectionContext, 0)
 
         def argument(self):
-            return self.getTypedRuleContext(CommandParser.ArgumentContext,0)
-
+            return self.getTypedRuleContext(CommandParser.ArgumentContext, 0)
 
         def getRuleIndex(self):
             return CommandParser.RULE_atom
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterAtom" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterAtom"):
                 listener.enterAtom(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitAtom" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitAtom"):
                 listener.exitAtom(self)
 
-        def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitAtom" ):
+        def accept(self, visitor: ParseTreeVisitor):
+            if hasattr(visitor, "visitAtom"):
                 return visitor.visitAtom(self)
             else:
                 return visitor.visitChildren(self)
-
-
-
 
     def atom(self):
 
@@ -499,7 +463,8 @@ class CommandParser ( Parser ):
                 self.state = 77
                 self.redirection()
                 pass
-            elif token in [CommandParser.SINGLE_QUOTED, CommandParser.BACKQUOTED, CommandParser.DOUBLE_QUOTED, CommandParser.UNQUOTED_CONTENT]:
+            elif token in [CommandParser.SINGLE_QUOTED, CommandParser.BACKQUOTED, CommandParser.DOUBLE_QUOTED,
+                           CommandParser.UNQUOTED_CONTENT]:
                 self.enterOuterAlt(localctx, 2)
                 self.state = 78
                 self.argument()
@@ -515,22 +480,20 @@ class CommandParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class ArgumentContext(ParserRuleContext):
         __slots__ = 'parser'
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(self, parser, parent: ParserRuleContext = None, invokingState: int = -1):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def quoted(self, i:int=None):
+        def quoted(self, i: int = None):
             if i is None:
                 return self.getTypedRuleContexts(CommandParser.QuotedContext)
             else:
-                return self.getTypedRuleContext(CommandParser.QuotedContext,i)
+                return self.getTypedRuleContext(CommandParser.QuotedContext, i)
 
-
-        def UNQUOTED_CONTENT(self, i:int=None):
+        def UNQUOTED_CONTENT(self, i: int = None):
             if i is None:
                 return self.getTokens(CommandParser.UNQUOTED_CONTENT)
             else:
@@ -539,22 +502,19 @@ class CommandParser ( Parser ):
         def getRuleIndex(self):
             return CommandParser.RULE_argument
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterArgument" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterArgument"):
                 listener.enterArgument(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitArgument" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitArgument"):
                 listener.exitArgument(self)
 
-        def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitArgument" ):
+        def accept(self, visitor: ParseTreeVisitor):
+            if hasattr(visitor, "visitArgument"):
                 return visitor.visitArgument(self)
             else:
                 return visitor.visitChildren(self)
-
-
-
 
     def argument(self):
 
@@ -562,10 +522,10 @@ class CommandParser ( Parser ):
         self.enterRule(localctx, 10, self.RULE_argument)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 83 
+            self.state = 83
             self._errHandler.sync(self)
             _alt = 1
-            while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
+            while _alt != 2 and _alt != ATN.INVALID_ALT_NUMBER:
                 if _alt == 1:
                     self.state = 83
                     self._errHandler.sync(self)
@@ -584,9 +544,9 @@ class CommandParser ( Parser ):
 
                 else:
                     raise NoViableAltException(self)
-                self.state = 85 
+                self.state = 85
                 self._errHandler.sync(self)
-                _alt = self._interp.adaptivePredict(self._input,14,self._ctx)
+                _alt = self._interp.adaptivePredict(self._input, 14, self._ctx)
 
         except RecognitionException as re:
             localctx.exception = re
@@ -596,19 +556,17 @@ class CommandParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class RedirectionContext(ParserRuleContext):
         __slots__ = 'parser'
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(self, parser, parent: ParserRuleContext = None, invokingState: int = -1):
             super().__init__(parent, invokingState)
             self.parser = parser
 
         def argument(self):
-            return self.getTypedRuleContext(CommandParser.ArgumentContext,0)
+            return self.getTypedRuleContext(CommandParser.ArgumentContext, 0)
 
-
-        def WHITESPACE(self, i:int=None):
+        def WHITESPACE(self, i: int = None):
             if i is None:
                 return self.getTokens(CommandParser.WHITESPACE)
             else:
@@ -617,28 +575,25 @@ class CommandParser ( Parser ):
         def getRuleIndex(self):
             return CommandParser.RULE_redirection
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterRedirection" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterRedirection"):
                 listener.enterRedirection(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitRedirection" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitRedirection"):
                 listener.exitRedirection(self)
 
-        def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitRedirection" ):
+        def accept(self, visitor: ParseTreeVisitor):
+            if hasattr(visitor, "visitRedirection"):
                 return visitor.visitRedirection(self)
             else:
                 return visitor.visitChildren(self)
-
-
-
 
     def redirection(self):
 
         localctx = CommandParser.RedirectionContext(self, self._ctx, self.state)
         self.enterRule(localctx, 12, self.RULE_redirection)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.state = 103
             self._errHandler.sync(self)
@@ -650,7 +605,7 @@ class CommandParser ( Parser ):
                 self.state = 91
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                while _la==CommandParser.WHITESPACE:
+                while _la == CommandParser.WHITESPACE:
                     self.state = 88
                     self.match(CommandParser.WHITESPACE)
                     self.state = 93
@@ -667,7 +622,7 @@ class CommandParser ( Parser ):
                 self.state = 99
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                while _la==CommandParser.WHITESPACE:
+                while _la == CommandParser.WHITESPACE:
                     self.state = 96
                     self.match(CommandParser.WHITESPACE)
                     self.state = 101
@@ -688,11 +643,10 @@ class CommandParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class QuotedContext(ParserRuleContext):
         __slots__ = 'parser'
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(self, parser, parent: ParserRuleContext = None, invokingState: int = -1):
             super().__init__(parent, invokingState)
             self.parser = parser
 
@@ -708,33 +662,32 @@ class CommandParser ( Parser ):
         def getRuleIndex(self):
             return CommandParser.RULE_quoted
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterQuoted" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterQuoted"):
                 listener.enterQuoted(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitQuoted" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitQuoted"):
                 listener.exitQuoted(self)
 
-        def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitQuoted" ):
+        def accept(self, visitor: ParseTreeVisitor):
+            if hasattr(visitor, "visitQuoted"):
                 return visitor.visitQuoted(self)
             else:
                 return visitor.visitChildren(self)
-
-
-
 
     def quoted(self):
 
         localctx = CommandParser.QuotedContext(self, self._ctx, self.state)
         self.enterRule(localctx, 14, self.RULE_quoted)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 105
             _la = self._input.LA(1)
-            if not((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << CommandParser.SINGLE_QUOTED) | (1 << CommandParser.BACKQUOTED) | (1 << CommandParser.DOUBLE_QUOTED))) != 0)):
+            if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & (
+                    (1 << CommandParser.SINGLE_QUOTED) | (1 << CommandParser.BACKQUOTED) | (
+                    1 << CommandParser.DOUBLE_QUOTED))) != 0)):
                 self._errHandler.recoverInline(self)
             else:
                 self._errHandler.reportMatch(self)
@@ -746,8 +699,3 @@ class CommandParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
-
-
-
-
-

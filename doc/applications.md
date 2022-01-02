@@ -1,12 +1,20 @@
 # Applications
 
-COMP0010 Shell provides implementations of widely-used UNIX applications: [cd](https://en.wikipedia.org/wiki/Cd_(command)), [pwd](https://en.wikipedia.org/wiki/Pwd), [ls](https://en.wikipedia.org/wiki/Ls), [cat](https://en.wikipedia.org/wiki/Cat_(Unix)), [echo](https://en.wikipedia.org/wiki/Echo_(command)), [head](https://en.wikipedia.org/wiki/Head_(Unix)), [tail](https://en.wikipedia.org/wiki/Tail_(Unix)), [grep](https://en.wikipedia.org/wiki/Grep), [find](https://en.wikipedia.org/wiki/Find_(Unix)), [sort](https://en.wikipedia.org/wiki/Sort_(Unix)), [uniq](https://en.wikipedia.org/wiki/Uniq), [cut](https://en.wikipedia.org/wiki/Cut_(Unix)), and also their unsafe versions. 
+COMP0010 Shell provides implementations of widely-used UNIX
+applications: [cd](https://en.wikipedia.org/wiki/Cd_(command)), [pwd](https://en.wikipedia.org/wiki/Pwd)
+, [ls](https://en.wikipedia.org/wiki/Ls), [cat](https://en.wikipedia.org/wiki/Cat_(Unix))
+, [echo](https://en.wikipedia.org/wiki/Echo_(command)), [head](https://en.wikipedia.org/wiki/Head_(Unix))
+, [tail](https://en.wikipedia.org/wiki/Tail_(Unix)), [grep](https://en.wikipedia.org/wiki/Grep)
+, [find](https://en.wikipedia.org/wiki/Find_(Unix)), [sort](https://en.wikipedia.org/wiki/Sort_(Unix))
+, [uniq](https://en.wikipedia.org/wiki/Uniq), [cut](https://en.wikipedia.org/wiki/Cut_(Unix)), and also their unsafe
+versions.
 
 Compared to most UNIX shells, COMP0010 Shell has some important differences in handling applications:
 
 - Applications are executed inside the shell process, rather than new separate processes.
 - Applications throw exceptions instead of using exit codes and stderr.
-- Applications do not read stdin directly from keyboard, but can only receive it from redirections or pipelines. If an application expects data from stdin, but it is not provided, the application should throw an exception.
+- Applications do not read stdin directly from keyboard, but can only receive it from redirections or pipelines. If an
+  application expects data from stdin, but it is not provided, the application should throw an exception.
 
 ## pwd
 
@@ -24,7 +32,8 @@ Changes the current working directory.
 
 ## ls
 
-Lists the content of a directory. It prints a list of files and directories separated by tabs and followed by a newline. Ignores files and directories whose names start with `.`.
+Lists the content of a directory. It prints a list of files and directories separated by tabs and followed by a newline.
+Ignores files and directories whose names start with `.`.
 
     ls [PATH]
 
@@ -46,7 +55,8 @@ Prints its arguments separated by spaces and followed by a newline to stdout:
 
 ## head
 
-Prints the first N lines of a given file or stdin. If there are less than N lines, prints only the existing lines without raising an exception.
+Prints the first N lines of a given file or stdin. If there are less than N lines, prints only the existing lines
+without raising an exception.
 
     head [OPTIONS] [FILE]
 
@@ -55,7 +65,8 @@ Prints the first N lines of a given file or stdin. If there are less than N line
 
 ## tail
 
-Prints the last N lines of a given file or stdin. If there are less than N lines, prints only the existing lines without raising an exception.
+Prints the last N lines of a given file or stdin. If there are less than N lines, prints only the existing lines without
+raising an exception.
 
     tail [OPTIONS] [FILE]
 
@@ -64,12 +75,14 @@ Prints the last N lines of a given file or stdin. If there are less than N lines
 
 ## grep
 
-Searches for lines containing a match to the specified pattern. The output of the command is the list of lines. Each line is printed followed by a newline.
+Searches for lines containing a match to the specified pattern. The output of the command is the list of lines. Each
+line is printed followed by a newline.
 
     grep PATTERN [FILE]...
 
 - `PATTERN` is a regular expression in [PCRE](https://en.wikipedia.org/wiki/Perl_Compatible_Regular_Expressions) format.
-- `FILE`(s) is the name(s) of the file(s). When multiple files are provided, the found lines should be prefixed with the corresponding file paths and colon symbols. If no file is specified, uses stdin.
+- `FILE`(s) is the name(s) of the file(s). When multiple files are provided, the found lines should be prefixed with the
+  corresponding file paths and colon symbols. If no file is specified, uses stdin.
 
 ## cut
 
@@ -112,12 +125,46 @@ Sorts the contents of a file/stdin line by line and prints the result to stdout.
     - `-r` sorts lines in reverse order
 - `FILE` is the name of the file. If not specified, uses stdin.
 
+## mkdir
+
+Creates a directory in a given path with a specified numeric mode
+
+    mkdir [PATH] [MODE]
+
+- `PATH` is a path-like object representing a file system path
+- `MODE` is an Integer value representing mode of the directory to be created
+
+## rmdir
+
+Removes a directory from a given path
+
+    rmdir [PATH]
+
+- `PATH` is a path-like object representing a file system path
+
+## chown
+
+Changes the group and owner of the specified path to the specified numeric group and owner id.
+
+    chown [PATH] [UID] [GID]
+
+- `PATH` is representing the file whose uid and gid is to be changed
+- `UID` an Integer value representing the owner id to be set for the file.
+- `GID` an Integer value representing the group id to be set for the file.
+
+## rm
+
+Removes a file from  given path
+
+    rmdir [PATH]
+
+- `PATH` is representing the file which will be deleted
+
 ## wc
 
-wc stands for word count and is used for counting purposes.  By default (no flag) it prints four-columnar output:
+wc stands for word count and is used for counting purposes. By default (no flag) it prints four-columnar output:
 `<num_of_lines> <num_of_words> <num_of_chars> <filename>`
-If more than 1 file is specified it prints an extra row
-named `total` with total count of specified statistics.
+If more than 1 file is specified it prints an extra row named `total` with total count of specified statistics.
 
     wc [OPTION] [FILE]...
 
@@ -131,4 +178,7 @@ named `total` with total count of specified statistics.
 
 ## Unsafe applications
 
-In COMP0010 Shell, each application has an unsafe variant. An unsafe version of an application is an application that has the same semantics as the original application, but instead of raising exceptions, it prints the error message to its stdout. This feature can be used to prevent long sequences from terminating early when some intermediate commands fail. The names of unsafe applications are prefixed with `_`, e.g. `_ls` and `_grep`.
+In COMP0010 Shell, each application has an unsafe variant. An unsafe version of an application is an application that
+has the same semantics as the original application, but instead of raising exceptions, it prints the error message to
+its stdout. This feature can be used to prevent long sequences from terminating early when some intermediate commands
+fail. The names of unsafe applications are prefixed with `_`, e.g. `_ls` and `_grep`.

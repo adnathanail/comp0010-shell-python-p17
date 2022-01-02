@@ -462,5 +462,369 @@ class TestWc(unittest.TestCase):
         self.assertEqual(out, correct)
 
 
+class TestCd(unittest.TestCase):
+    def setUp(self):
+        self.cd = app_factory.create("cd")
+        self.dir = TemporaryDirectory(dir=os.getcwd())
+
+    def tearDown(self):
+        self.dir.cleanup()
+
+    def test_cd_no_args(self):
+        with self.assertRaises(ValueError):
+            args = []
+            inp = []
+            out = deque()
+            self.cd.exec(inp, out, args)
+
+    def test_cd_too_many_args(self):
+        with self.assertRaises(ValueError):
+            args = ["arg1", "arg2"]
+            inp = []
+            out = deque()
+            self.cd.exec(inp, out, args)
+
+    def test_cd_invalid_path(self):
+        with self.assertRaises(FileNotFoundError):
+            args = ["invalid_dir"]
+            inp = []
+            out = deque()
+            self.cd.exec(inp, out, args)
+
+    def test_cd_correct(self):
+        dirname = self.dir.name
+        cwd = os.getcwd()
+        args = [dirname]
+        inp = []
+        out = deque()
+        self.cd.exec(inp, out, args)
+        self.assertEqual(os.getcwd(), cwd + "/dir")
+
+
+class TestCat(unittest.TestCase):
+    def setUp(self):
+        self.cat = app_factory.create("cat")
+        self.file1 = NamedTemporaryFile("r+", delete=False)
+        self.file1.writelines([str(i) + "\n" for i in range(0, 100)])
+        self.file1.close()
+        self.file2 = NamedTemporaryFile("r+", delete=False)
+        self.file2.writelines([str(i) + "\n" for i in range(100, 200)])
+        self.file2.close()
+
+    def tearDown(self):
+        os.unlink(self.file1.name)
+        os.unlink(self.file2.name)
+        assert (not (os.path.exists(self.file1.name)) and
+                not (os.path.exists(self.file2.name)))
+
+    def test_cat_invalid_filename(self):
+        output = deque()
+        with self.assertRaises(FileNotFoundError):
+            self.cat.exec(args=["invalid_filename"], inp=[],
+                          output=output)
+
+    def test_cat_no_args(self):
+        output = deque()
+        self.cat.exec(args=[], inp=["input"], output=output)
+        output = deque_to_str(output).split("\n")
+        self.assertEqual(output, ["input"])
+
+    def test_cat_single_arg(self):
+        output = deque()
+        fname = self.file1.name
+        self.cat.exec(args=[fname], inp=[], output=output)
+        output = deque_to_str(output).split("\n")
+        self.assertEqual(output, [str(i) for i in range(0, 100)])
+
+    def test_cat_multiple_args(self):
+        output = deque()
+        fname1 = self.file1.name
+        fname2 = self.file2.name
+        self.cat.exec(args=[fname1, fname2], inp=[], output=output)
+        output = deque_to_str(output).split("\n")
+        self.assertEqual(output, [str(i) for i in range(0, 200)])
+
+
+class TestFind(unittest.TestCase):
+    def setUp(self):
+        self.find = app_factory.create("find")
+        self.dir1 = TemporaryDirectory(dir=os.getcwd())
+        self.dir2 = TemporaryDirectory(dir=os.getcwd())
+        self.file1 = NamedTemporaryFile(mode="r+",
+                                        dir=self.dir1.name,
+                                        suffix=".txt",
+                                        prefix="file1")
+        self.file2 = NamedTemporaryFile(mode="r+",
+                                        dir=self.dir2.name,
+                                        suffix=".txt",
+                                        prefix="file2")
+
+    def tearDown(self):
+        self.file1.close()
+        self.file2.close()
+        self.dir1.cleanup()
+        self.dir2.cleanup()
+
+    def test_find_no_match(self):
+        output = deque()
+        self.find.exec(args=["-name", "invalid_filename"],
+                       inp=[], output=output)
+        output = deque_to_str(output).split("\n")
+        self.assertEqual(output, [''])
+
+    def test_find_single_match(self):
+        output = deque()
+        self.find.exec(args=["-name", "file"], inp=[], output=output)
+        output = deque_to_str(output).split("\n")
+        correct = [self.file1.name]
+        self.assertEqual(output, correct)
+
+    def test_find_multiple_match(self):
+        output = deque()
+        self.find.exec(args=["-name", "file"], inp=[], output=output)
+        output = deque_to_str(output).split("\n")
+        correct = [self.file1.name, self.file2.name]
+        self.assertEqual(output, correct)
+
+
+class TestSort(unittest.TestCase):
+    def setUp(self):
+        self.sort = app_factory.create("sort")
+        self.dir = TemporaryDirectory(dir=os.getcwd())
+        self.file = NamedTemporaryFile(mode="r+",
+                                       dir=self.dir.name,
+                                       suffix=".txt",
+                                       prefix="file")
+        self.file.write("AAA\nAAA\nBBB\n")
+        self.file.seek(0)
+
+    def tearDown(self):
+        self.file.close()
+        self.dir.cleanup()
+
+    def test_sort(self):
+        output = deque()
+        self.sort.exec(args=[self.file.name], inp=[], output=output)
+        output = deque_to_str(output).split("\n")
+        correct = ["AAA", "AAA", "BBB"]
+        self.assertEqual(output, correct)
+
+    def test_sort_stdin(self):
+        output = deque()
+        self.sort.exec(args=[], inp=["AAA", "BBB", "AAA"], output=output)
+        output = deque_to_str(output).split("\n")
+        correct = ["AAA", "AAA", "BBB"]
+        self.assertEqual(output, correct)
+
+    def test_sort_reverse(self):
+        output = deque()
+        self.sort.exec(args=["file.txt"], inp=[], output=output)
+        output = deque_to_str(output).split("\n")
+        correct = ["BBB", "AAA", "AAA"]
+        self.assertEqual(output, correct)
+
+    def test_sort_wrong_flags(self):
+        output = deque()
+        with self.assertRaises(ValueError):
+            self.sort.exec(args=["-b"], inp=[], output=output)
+
+    def test_sort_empty_stdin(self):
+        output = deque()
+        with self.assertRaises(ValueError):
+            self.sort.exec(args=[], inp=[], output=output)
+
+    def test_sort_invalid_filename(self):
+        output = deque()
+        with self.assertRaises(FileNotFoundError):
+            self.sort.exec(args=["invalid_filename.txt"],
+                           inp=[], output=output)
+
+
+class TestGrep(unittest.TestCase):
+    def setUp(self):
+        self.grep = app_factory.create("grep")
+        self.dir1 = TemporaryDirectory(dir=os.getcwd())
+        self.dir2 = TemporaryDirectory(dir=os.getcwd())
+        self.file1 = NamedTemporaryFile(mode="r+",
+                                        dir=self.dir1.name,
+                                        suffix=".txt",
+                                        prefix="file")
+        self.file2 = NamedTemporaryFile(mode="r+",
+                                        dir=self.dir2.name,
+                                        suffix=".txt",
+                                        prefix="file")
+        self.file1.write("AAA\nAAA\nBBB\n")
+        self.file2.write("AAA\nAAA\nBBB\n")
+        self.file1.seek(0)
+        self.file2.seek(0)
+
+    def tearDown(self):
+        self.file1.close()
+        self.file2.close()
+        self.dir1.cleanup()
+        self.dir2.cleanup()
+
+    def test_grep_no_match(self):
+        output = deque()
+        self.grep.exec(args=[f"DDD {self.dir1.name}/file1.txt"], inp=[], output=output)
+        output = deque_to_str(output).split("\n")
+        self.assertEqual(output, [])
+
+    def test_grep_single_match(self):
+        output = deque()
+        self.grep.exec(args=[f"BBB {self.dir1.name}/file1.txt"], inp=[], output=output)
+        output = deque_to_str(output).split("\n")
+        correct = ["BBB"]
+        self.assertEqual(output, correct)
+
+    def test_grep_multiple_match(self):
+        output = deque()
+        self.grep.exec(args=[f"AAA {self.dir1.name}/file1.txt"], inp=[], output=output)
+        output = deque_to_str(output).split("\n")
+        correct = ["AAA", "AAA"]
+        self.assertEqual(output, correct)
+
+    def test_grep_single_match_re(self):
+        output = deque()
+        self.grep.exec(args=[f"'A..' {self.dir1.name}/file1.txt"], inp=[], output=output)
+        output = deque_to_str(output).split("\n")
+        correct = ["AAA", "AAA"]
+        self.assertEqual(output, correct)
+
+    def test_grep_multiple_files(self):
+        output = deque()
+        self.grep.exec(args=[f"'...' {self.dir1.name}/file1.txt {self.dir2.name}/file2.txt"], inp=[], output=output)
+        output = deque_to_str(output).split("\n")
+        correct = [f"{self.dir1.name}/file1.txt:AAA",
+                   f"{self.dir1.name}/file1.txt:AAA",
+                   f"{self.dir1.name}/file1.txt:BBB",
+                   f"{self.dir2.name}/file1.txt:AAA",
+                   f"{self.dir2.name}/file1.txt:AAA",
+                   f"{self.dir2.name}/file1.txt:BBB"]
+        self.assertEqual(output, correct)
+
+
+class TestMkdir(unittest.TestCase):
+    def setUp(self):
+        self.mkdir = app_factory.create("mkdir")
+        self.dir = TemporaryDirectory(dir=os.getcwd())
+
+    def tearDown(self):
+        self.dir.cleanup()
+
+    def test_mkdir_wrong_number_of_args(self):
+        output = deque()
+        with self.assertRaises(ValueError):
+            self.mkdir.exec(args=[], inp=[], output=output)
+
+    def test_mkdir_directory_exists(self):
+        output = deque()
+        with self.assertRaises(OSError):
+            self.mkdir.exec(args=[f"{os.getcwd()}/{self.dir.name}", 777], inp=[], output=output)
+
+    def test_mkdir_create(self):
+        output = deque()
+        dirname = "dir"
+        path = f"{os.getcwd()}/{dirname}"
+        self.mkdir.exec(args=[path, 777], inp=[], output=output)
+        self.assertTrue(os.path.exists(path))
+        os.rmdir(path)
+
+
+class TestRmdir(unittest.TestCase):
+    def setUp(self):
+        self.rmdir = app_factory.create("rmdir")
+        self.empty_dir = TemporaryDirectory(dir=os.getcwd())
+
+    def tearDown(self):
+        self.empty_dir.cleanup()
+
+    def test_rmdir_wrong_number_of_args(self):
+        output = deque()
+        with self.assertRaises(ValueError):
+            self.rmdir.exec(args=[], inp=[], output=output)
+
+    def test_rmdir_cant_delete(self):
+        output = deque()
+        with self.assertRaises(OSError):
+            self.rmdir.exec(args=[f"{os.getcwd()}/invalid_dirname"], inp=[], output=output)
+
+    def test_rmdir(self):
+        output = deque()
+        path = self.empty_dir.name
+        self.rmdir.exec(args=[path], inp=[], output=output)
+        self.assertFalse(os.path.exists(path))
+
+
+class TestChown(unittest.TestCase):
+    def setUp(self):
+        self.chown = app_factory.create("chown")
+        self.dir = TemporaryDirectory(dir=os.getcwd())
+        self.file = NamedTemporaryFile(mode="w+b", dir=self.dir.name, suffix=".txt", prefix="file")
+    def tearDown(self):
+        self.file.close()
+        self.dir.cleanup()
+
+    def test_chown_no_args(self):
+        output = deque()
+        with self.assertRaises(ValueError):
+            self.chown.exec(args=[], inp=[], output=output)
+
+    def test_chown_too_many_args(self):
+        output = deque()
+        with self.assertRaises(ValueError):
+            self.chown.exec(args=["arg1", "arg2", "arg3", "arg4"], inp=[], output=output)
+
+    def test_chown_invalid_file(self):
+        output = deque()
+        with self.assertRaises(OSError):
+            self.chown.exec(args=[f"{os.getcwd()}/invalid_filename", "5000", "6000"], inp=[], output=output)
+
+    def test_chown_invalid_uid_gid(self):
+        output = deque()
+        with self.assertRaises(ValueError):
+            self.chown.exec(args=["arg1", "arg2", "arg3"], inp=[], output=output)
+
+    def test_chown(self):
+        output = deque()
+        path = self.file.name
+        self.chown.exec(args=[path, "5000", "6000"], inp=[], output=output)
+        self.assertEqual(os.stat(path).st_uid, 5000)
+        self.assertEqual(os.stat(path).st_gid, 6000)
+
+
+class TestRm(unittest.TestCase):
+    def setUp(self):
+        self.rm = app_factory.create("rm")
+        self.dir = TemporaryDirectory(dir=os.getcwd())
+        self.file = NamedTemporaryFile(mode="r+", dir=self.dir.name, suffix=".txt", prefix="file")
+
+    def tearDown(self):
+        if os.path.exists(self.file.name):
+            self.file.close()
+        self.dir.cleanup()
+
+    def test_rm_no_args(self):
+        output = deque()
+        with self.assertRaises(ValueError):
+            self.rm.exec(args=[], inp=[], output=output)
+
+    def test_rm_too_many_args(self):
+        output = deque()
+        with self.assertRaises(ValueError):
+            self.rm.exec(args=["arg1", "arg2"], inp=[], output=output)
+
+    def test_rm_invalid_path(self):
+        output = deque()
+        with self.assertRaises(OSError):
+            self.rm.exec(args=["invalid_path"], inp=[], output=output)
+
+    def test_rm(self):
+        output = deque()
+        path = self.file.name
+        self.rm.exec(args=[path], inp=[], output=output)
+        self.assertFalse(os.path.exists(path))
+
+
 if __name__ == "__main__":
     unittest.main()

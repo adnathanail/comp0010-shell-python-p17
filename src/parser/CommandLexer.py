@@ -1,12 +1,13 @@
 # Generated from Command.g4 by ANTLR 4.9.2
-from antlr4 import *
-from io import StringIO
 import sys
+from io import StringIO
+
+from antlr4 import *
+
 if sys.version_info[1] > 5:
     from typing import TextIO
 else:
     from typing.io import TextIO
-
 
 
 def serializedATN():
@@ -40,10 +41,9 @@ def serializedATN():
 
 
 class CommandLexer(Lexer):
-
     atn = ATNDeserializer().deserialize(serializedATN())
 
-    decisionsToDFA = [ DFA(ds, i) for i, ds in enumerate(atn.decisionToState) ]
+    decisionsToDFA = [DFA(ds, i) for i, ds in enumerate(atn.decisionToState)]
 
     T__0 = 1
     T__1 = 2
@@ -55,27 +55,25 @@ class CommandLexer(Lexer):
     UNQUOTED_CONTENT = 8
     WHITESPACE = 9
 
-    channelNames = [ u"DEFAULT_TOKEN_CHANNEL", u"HIDDEN" ]
+    channelNames = [u"DEFAULT_TOKEN_CHANNEL", u"HIDDEN"]
 
-    modeNames = [ "DEFAULT_MODE" ]
+    modeNames = ["DEFAULT_MODE"]
 
-    literalNames = [ "<INVALID>",
-            "';'", "'|'", "'<'", "'>'" ]
+    literalNames = ["<INVALID>",
+                    "';'", "'|'", "'<'", "'>'"]
 
-    symbolicNames = [ "<INVALID>",
-            "SINGLE_QUOTED", "BACKQUOTED", "DOUBLE_QUOTED", "UNQUOTED_CONTENT", 
-            "WHITESPACE" ]
+    symbolicNames = ["<INVALID>",
+                     "SINGLE_QUOTED", "BACKQUOTED", "DOUBLE_QUOTED", "UNQUOTED_CONTENT",
+                     "WHITESPACE"]
 
-    ruleNames = [ "T__0", "T__1", "T__2", "T__3", "SINGLE_QUOTED", "BACKQUOTED", 
-                  "DOUBLE_QUOTED", "UNQUOTED_CONTENT", "WHITESPACE" ]
+    ruleNames = ["T__0", "T__1", "T__2", "T__3", "SINGLE_QUOTED", "BACKQUOTED",
+                 "DOUBLE_QUOTED", "UNQUOTED_CONTENT", "WHITESPACE"]
 
     grammarFileName = "Command.g4"
 
-    def __init__(self, input=None, output:TextIO = sys.stdout):
+    def __init__(self, input=None, output: TextIO = sys.stdout):
         super().__init__(input, output)
         self.checkVersion("4.9.2")
         self._interp = LexerATNSimulator(self, self.atn, self.decisionsToDFA, PredictionContextCache())
         self._actions = None
         self._predicates = None
-
-
