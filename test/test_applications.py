@@ -570,21 +570,20 @@ class TestFind(unittest.TestCase):
         self.find.exec(args=["-name", "invalid_filename"],
                        inp=[], output=output)
         output = deque_to_str(output).split("\n")
-        self.assertEqual(output, [])
+        self.assertEqual(output, [''])
 
     def test_find_single_match(self):
         output = deque()
-        self.find.exec(args=["-name file.txt"], inp=[], output=output)
+        self.find.exec(args=["-name", "file"], inp=[], output=output)
         output = deque_to_str(output).split("\n")
-        correct = [self.dir1.name + self.file1.name]
+        correct = [self.file1.name]
         self.assertEqual(output, correct)
 
     def test_find_multiple_match(self):
         output = deque()
-        self.find.exec(args=["-name file.txt"], inp=[], output=output)
+        self.find.exec(args=["-name", "file"], inp=[], output=output)
         output = deque_to_str(output).split("\n")
-        correct = [self.dir1.name + self.file1.name,
-                   self.dir2.name + self.file2.name]
+        correct = [self.file1.name, self.file2.name]
         self.assertEqual(output, correct)
 
 
@@ -605,7 +604,7 @@ class TestSort(unittest.TestCase):
 
     def test_sort(self):
         output = deque()
-        self.sort.exec(args=["file.txt"], inp=[], output=output)
+        self.sort.exec(args=[self.file.name], inp=[], output=output)
         output = deque_to_str(output).split("\n")
         correct = ["AAA", "AAA", "BBB"]
         self.assertEqual(output, correct)
@@ -721,14 +720,15 @@ class TestMkdir(unittest.TestCase):
     def test_mkdir_directory_exists(self):
         output = deque()
         with self.assertRaises(OSError):
-            self.mkdir.exec(args=[f"{os.getcwd()}/{self.dir.name}", "0o777"], inp=[], output=output)
+            self.mkdir.exec(args=[f"{os.getcwd()}/{self.dir.name}", 777], inp=[], output=output)
 
     def test_mkdir_create(self):
         output = deque()
-        dirname = "dir2"
+        dirname = "dir"
         path = f"{os.getcwd()}/{dirname}"
-        self.mkdir.exec(args=[path, "0o777"], inp=[], output=output)
+        self.mkdir.exec(args=[path, 777], inp=[], output=output)
         self.assertTrue(os.path.exists(path))
+        os.rmdir(path)
 
 
 class TestRmdir(unittest.TestCase):
@@ -747,11 +747,11 @@ class TestRmdir(unittest.TestCase):
     def test_rmdir_cant_delete(self):
         output = deque()
         with self.assertRaises(OSError):
-            self.rmdir.exec(args=[f"{os.getcwd()}/invalid_dirname", "0o777"], inp=[], output=output)
+            self.rmdir.exec(args=[f"{os.getcwd()}/invalid_dirname"], inp=[], output=output)
 
-    def test_rmdir_create(self):
+    def test_rmdir(self):
         output = deque()
-        path = f"{os.getcwd()}/{self.empty_dir.name}"
+        path = self.empty_dir.name
         self.rmdir.exec(args=[path], inp=[], output=output)
         self.assertFalse(os.path.exists(path))
 
@@ -760,8 +760,7 @@ class TestChown(unittest.TestCase):
     def setUp(self):
         self.chown = app_factory.create("chown")
         self.dir = TemporaryDirectory(dir=os.getcwd())
-        self.file = NamedTemporaryFile(mode="r+", dir=self.dir.name, suffix=".txt", prefix="file")
-
+        self.file = NamedTemporaryFile(mode="w+b", dir=self.dir.name, suffix=".txt", prefix="file")
     def tearDown(self):
         self.file.close()
         self.dir.cleanup()
@@ -783,12 +782,12 @@ class TestChown(unittest.TestCase):
 
     def test_chown_invalid_uid_gid(self):
         output = deque()
-        with self.assertRaises(OSError):
+        with self.assertRaises(ValueError):
             self.chown.exec(args=["arg1", "arg2", "arg3"], inp=[], output=output)
 
     def test_chown(self):
         output = deque()
-        path = f"{os.getcwd()}/{self.dir.name}/{self.file.name}"
+        path = self.file.name
         self.chown.exec(args=[path, "5000", "6000"], inp=[], output=output)
         self.assertEqual(os.stat(path).st_uid, 5000)
         self.assertEqual(os.stat(path).st_gid, 6000)
@@ -801,7 +800,8 @@ class TestRm(unittest.TestCase):
         self.file = NamedTemporaryFile(mode="r+", dir=self.dir.name, suffix=".txt", prefix="file")
 
     def tearDown(self):
-        self.file.close()
+        if os.path.exists(self.file.name):
+            self.file.close()
         self.dir.cleanup()
 
     def test_rm_no_args(self):
@@ -821,7 +821,7 @@ class TestRm(unittest.TestCase):
 
     def test_rm(self):
         output = deque()
-        path = f"{os.getcwd()}/{self.dir.name}/file.txt"
+        path = self.file.name
         self.rm.exec(args=[path], inp=[], output=output)
         self.assertFalse(os.path.exists(path))
 
