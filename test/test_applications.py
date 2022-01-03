@@ -666,56 +666,34 @@ class TestGrep(unittest.TestCase):
 
     def test_grep_no_match(self):
         output = deque()
-        self.grep.exec(
-            args=[f"DDD {self.dir1.name}/file1.txt"],
-            inp=[],
-            output=output
-        )
+        self.grep.exec(args=[f"DDD {self.dir1.name}/file1.txt"], inp=[], output=output)
         output = deque_to_str(output).split("\n")
         self.assertEqual(output, [])
 
     def test_grep_single_match(self):
         output = deque()
-        self.grep.exec(
-            args=[f"BBB {self.dir1.name}/file1.txt"],
-            inp=[],
-            output=output
-        )
+        self.grep.exec(args=[f"BBB {self.dir1.name}/file1.txt"], inp=[], output=output)
         output = deque_to_str(output).split("\n")
         correct = ["BBB"]
         self.assertEqual(output, correct)
 
     def test_grep_multiple_match(self):
         output = deque()
-        self.grep.exec(
-            args=[f"AAA {self.dir1.name}/file1.txt"],
-            inp=[],
-            output=output
-        )
+        self.grep.exec(args=[f"AAA {self.dir1.name}/file1.txt"], inp=[], output=output)
         output = deque_to_str(output).split("\n")
         correct = ["AAA", "AAA"]
         self.assertEqual(output, correct)
 
     def test_grep_single_match_re(self):
         output = deque()
-        self.grep.exec(
-            args=[f"'A..' {self.dir1.name}/file1.txt"],
-            inp=[],
-            output=output
-        )
+        self.grep.exec(args=[f"'A..' {self.dir1.name}/file1.txt"], inp=[], output=output)
         output = deque_to_str(output).split("\n")
         correct = ["AAA", "AAA"]
         self.assertEqual(output, correct)
 
     def test_grep_multiple_files(self):
         output = deque()
-        self.grep.exec(
-            args=[
-                f"'...' {self.dir1.name}/file1.txt {self.dir2.name}/file2.txt"
-            ],
-            inp=[],
-            output=output
-        )
+        self.grep.exec(args=[f"'...' {self.dir1.name}/file1.txt {self.dir2.name}/file2.txt"], inp=[], output=output)
         output = deque_to_str(output).split("\n")
         correct = [f"{self.dir1.name}/file1.txt:AAA",
                    f"{self.dir1.name}/file1.txt:AAA",
@@ -742,11 +720,7 @@ class TestMkdir(unittest.TestCase):
     def test_mkdir_directory_exists(self):
         output = deque()
         with self.assertRaises(OSError):
-            self.mkdir.exec(
-                args=[f"{os.getcwd()}/{self.dir.name}", 777],
-                inp=[],
-                output=output
-            )
+            self.mkdir.exec(args=[f"{os.getcwd()}/{self.dir.name}", 777], inp=[], output=output)
 
     def test_mkdir_create(self):
         output = deque()
@@ -773,11 +747,7 @@ class TestRmdir(unittest.TestCase):
     def test_rmdir_cant_delete(self):
         output = deque()
         with self.assertRaises(OSError):
-            self.rmdir.exec(
-                args=[f"{os.getcwd()}/invalid_dirname"],
-                inp=[],
-                output=output
-            )
+            self.rmdir.exec(args=[f"{os.getcwd()}/invalid_dirname"], inp=[], output=output)
 
     def test_rmdir(self):
         output = deque()
@@ -790,13 +760,7 @@ class TestChown(unittest.TestCase):
     def setUp(self):
         self.chown = app_factory.create("chown")
         self.dir = TemporaryDirectory(dir=os.getcwd())
-        self.file = NamedTemporaryFile(
-            mode="w+b",
-            dir=self.dir.name,
-            suffix=".txt",
-            prefix="file"
-        )
-
+        self.file = NamedTemporaryFile(mode="w+b", dir=self.dir.name, suffix=".txt", prefix="file")
     def tearDown(self):
         self.file.close()
         self.dir.cleanup()
@@ -809,29 +773,17 @@ class TestChown(unittest.TestCase):
     def test_chown_too_many_args(self):
         output = deque()
         with self.assertRaises(ValueError):
-            self.chown.exec(
-                args=["arg1", "arg2", "arg3", "arg4"],
-                inp=[],
-                output=output
-            )
+            self.chown.exec(args=["arg1", "arg2", "arg3", "arg4"], inp=[], output=output)
 
     def test_chown_invalid_file(self):
         output = deque()
         with self.assertRaises(OSError):
-            self.chown.exec(
-                args=[f"{os.getcwd()}/invalid_filename", "5000", "6000"],
-                inp=[],
-                output=output
-            )
+            self.chown.exec(args=[f"{os.getcwd()}/invalid_filename", "5000", "6000"], inp=[], output=output)
 
     def test_chown_invalid_uid_gid(self):
         output = deque()
         with self.assertRaises(ValueError):
-            self.chown.exec(
-                args=["arg1", "arg2", "arg3"],
-                inp=[],
-                output=output
-            )
+            self.chown.exec(args=["arg1", "arg2", "arg3"], inp=[], output=output)
 
     def test_chown(self):
         output = deque()
@@ -845,12 +797,7 @@ class TestRm(unittest.TestCase):
     def setUp(self):
         self.rm = app_factory.create("rm")
         self.dir = TemporaryDirectory(dir=os.getcwd())
-        self.file = NamedTemporaryFile(
-            mode="r+",
-            dir=self.dir.name,
-            suffix=".txt",
-            prefix="file"
-        )
+        self.file = NamedTemporaryFile(mode="r+", dir=self.dir.name, suffix=".txt", prefix="file")
 
     def tearDown(self):
         if os.path.exists(self.file.name):

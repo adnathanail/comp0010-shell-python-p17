@@ -414,7 +414,7 @@ class Chown(Application):
     def exec(self, inp: List, output: deque, args: List):
         if len(args) != 3:
             raise ValueError("wrong number of command line arguments")
-        if not args[1].is_digit() or not args[1].is_digit():
+        if (args[1].is_digit() == False or args[1].is_digit() == False):
             raise ValueError("UID or GID is not a number")
         else:
             path = args[0]
@@ -423,10 +423,7 @@ class Chown(Application):
             try:
                 os.chown(path, uid, gid)
             except OSError:
-                raise OSError(
-                    f"Owner id of the file: {os.stat(path)} could not be "
-                    f"changed."
-                )
+                raise OSError(f"Owner id of the file: {os.stat(path)} could not be changed.")
 
 
 class Rm(Application):
