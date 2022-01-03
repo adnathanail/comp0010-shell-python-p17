@@ -130,7 +130,10 @@ class Converter(CommandVisitor):
 
     # Visit a parse tree produced by CommandParser#redirection.
     def visitRedirection(
-            self, ctx: CommandParser.RedirectionContext, inp: List, output: List
+            self,
+            ctx: CommandParser.RedirectionContext,
+            inp: List,
+            output: List
     ):
         sign = ctx.getChild(0).getText()
         filename = ctx.argument().getText()

@@ -149,19 +149,19 @@ class TestCommands(unittest.TestCase):
         self.assertEqual(out, ['text1', 'abc'])
 
 
-# class TestGlobbing(unittest.TestCase):
-#
-#     def test_globbing(self):
-#         file = NamedTemporaryFile('r+')
-#         file.write('hello')
-#         file.seek(0)
-#         out = deque()
-#         run(f"cat *{file.name[-3:]}", output=out)
-#         file.close()
-#         out = deque_to_str(out)
-#         self.assertEqual(out, 'hello')
-#
-#
+class TestGlobbing(unittest.TestCase):
+
+    def test_globbing(self):
+        file = NamedTemporaryFile('r+', dir=os.getcwd(), suffix='.unique')
+        file.write('hello')
+        file.seek(0)
+        out = deque()
+        run("cat *.unique", output=out)
+        file.close()
+        out = deque_to_str(out)
+        self.assertEqual(out, 'hello')
+
+
 class TestUnsafeAppVersion(unittest.TestCase):
 
     def test_unsafe_wrapper_single_call(self):
