@@ -32,9 +32,9 @@ class Converter(CommandVisitor):
 
     # Visit a parse tree produced by CommandParser#commandSeq.
     def visitCommandSeq(
-            self,
-            ctx: CommandParser.CommandSeqContext,
-            commandSeq: Seq
+        self,
+        ctx: CommandParser.CommandSeqContext,
+        commandSeq: Seq
     ):
         # get contexts
         callCtx = ctx.call()
@@ -51,9 +51,9 @@ class Converter(CommandVisitor):
 
     # Visit a parse tree produced by CommandParser#callPipe.
     def visitCallPipe(
-            self,
-            ctx: CommandParser.CallPipeContext,
-            call: Command
+        self,
+        ctx: CommandParser.CallPipeContext,
+        call: Command
     ) -> Pipe:
         pipe = Pipe(call, self.visitCall(ctx.call()))
         if ctx.callPipe():
@@ -86,11 +86,11 @@ class Converter(CommandVisitor):
 
     # Visit a parse tree produced by CommandParser#atom.
     def visitAtom(
-            self,
-            ctx: CommandParser.AtomContext,
-            args: List,
-            inp: List,
-            output: List
+        self,
+        ctx: CommandParser.AtomContext,
+        args: List,
+        inp: List,
+        output: List
     ):
         for el in ctx:
             if el.redirection() is not None:
@@ -130,7 +130,7 @@ class Converter(CommandVisitor):
 
     # Visit a parse tree produced by CommandParser#redirection.
     def visitRedirection(
-            self, ctx: CommandParser.RedirectionContext, inp: List, output: List
+        self, ctx: CommandParser.RedirectionContext, inp: List, output: List
     ):
         sign = ctx.getChild(0).getText()
         filename = ctx.argument().getText()

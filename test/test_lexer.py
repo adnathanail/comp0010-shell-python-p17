@@ -71,9 +71,15 @@ class TestLexer(unittest.TestCase):
 
     def test_large_compound_command(self):
         self.assertEqual(
-            self.do_lex("echo aaa > dir1/file2.txt; cat dir1/file1.txt dir1/file2.txt | uniq -i"),
-            ["echo", " ", "aaa", " ", ">", " ", "dir1/file2.txt", ";", " ", "cat", " ", "dir1/file1.txt", " ",
-             "dir1/file2.txt", " ", "|", " ", "uniq", " ", "-i"]
+            self.do_lex(
+                "echo aaa > dir1/file2.txt; "
+                "cat dir1/file1.txt dir1/file2.txt | uniq -i"
+            ),
+            [
+                "echo", " ", "aaa", " ", ">", " ", "dir1/file2.txt", ";", " ",
+                "cat", " ", "dir1/file1.txt", " ", "dir1/file2.txt", " ", "|",
+                " ", "uniq", " ", "-i"
+            ]
         )
 
     def test_substitution(self):
