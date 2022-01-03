@@ -822,7 +822,12 @@ class TestRm(unittest.TestCase):
         self.rm = app_factory.create("rm")
         self.dir = TemporaryDirectory(dir=os.getcwd())
         self.file = NamedTemporaryFile(
-            mode="r+", dir=self.dir.name, suffix=".txt", prefix="file")
+            mode="r+",
+            dir=self.dir.name,
+            suffix=".txt",
+            prefix="file",
+            delete=False
+        )
 
     def tearDown(self):
         if os.path.exists(self.file.name):
