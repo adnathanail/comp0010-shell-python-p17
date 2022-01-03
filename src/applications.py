@@ -355,7 +355,7 @@ class Sort(Application):
             file = args[1]
         try:
             if use_stdin:
-                if inp is not None:
+                if inp is not None and inp != "":
                     content = inp.split()
                     content.sort(reverse=reverse)
                     content = "\n".join(content)
