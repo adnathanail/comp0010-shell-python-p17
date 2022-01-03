@@ -90,7 +90,7 @@ class Cat(Application):
             for file in file_list:
                 content += read_content(file)
             output.append(content)
-        else: # == 0
+        else:  # == 0
             output.extend(inp)
 
 
@@ -413,7 +413,8 @@ class Chown(Application):
     def exec(self, inp: List, output: deque, args: List):
         if len(args) != 3:
             raise ValueError("wrong number of command line arguments")
-        if (args[1].isnumeric() == False or args[1].isnumeric() == False):
+        if (args[1].isnumeric() is False or
+                args[2].isnumeric() is False):
             raise ValueError("UID or GID is not a number")
         else:
             path = args[0]
@@ -422,7 +423,8 @@ class Chown(Application):
             try:
                 os.chown(path, uid, gid)
             except OSError:
-                raise OSError(f"Owner id of the file: {os.stat(path)} could not be changed.")
+                raise OSError(f"Owner id of the file: \
+                    {os.stat(path)} could not be changed.")
 
 
 class Rm(Application):
