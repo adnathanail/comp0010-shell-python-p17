@@ -43,7 +43,7 @@ class Cd(Application):
             try:
                 os.chdir(path)
             except FileNotFoundError:
-                raise FileNotFoundError(f"Could not find path {path}")
+                raise FileNotFoundError(f"Could not find path '{path}'")
         else:
             raise ValueError("Wrong number of command line arguments")
 
@@ -84,15 +84,14 @@ class Cat(Application):
             except FileNotFoundError:
                 raise FileNotFoundError(f"Could not find file '{filename}'")
             return s
-
-        if args:
+        if len(args) > 0:
             file_list = args
             content = ""
             for file in file_list:
                 content += read_content(file)
             output.append(content)
-        else:
-            output.append(inp)
+        else: # == 0
+            output.extend(inp)
 
 
 class Echo(Application):

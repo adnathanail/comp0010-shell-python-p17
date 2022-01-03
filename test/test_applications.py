@@ -575,16 +575,20 @@ class TestFind(unittest.TestCase):
 
     def test_find_single_match(self):
         output = deque()
-        self.find.exec(args=["-name", "file"], inp=[], output=output)
-        output = deque_to_str(output).split("\n")
-        correct = [self.file1.name]
+        cwd = os.getcwd()
+        self.find.exec(args=["-name", "file1"], inp=[], output=output)
+        output = deque_to_str(output).strip().split("\n")
+        correct = self.file1.name.replace(cwd, '.', 1)
+        correct = [correct]
         self.assertEqual(output, correct)
 
     def test_find_multiple_match(self):
         output = deque()
+        cwd = os.getcwd()
         self.find.exec(args=["-name", "file"], inp=[], output=output)
-        output = deque_to_str(output).split("\n")
+        output = deque_to_str(output).strip().split("\n")
         correct = [self.file1.name, self.file2.name]
+        correct = list(map(lambda el: el.replace(cwd, '.', 1), correct))
         self.assertEqual(output, correct)
 
 
