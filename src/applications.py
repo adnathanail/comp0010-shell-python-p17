@@ -29,7 +29,6 @@ class Pwd(Application):
     """Prints current working directory"""
 
     def exec(self, inp: List, output: deque, args: List):
-        # no args, no input, there may be output
         cwd = os.getcwd() + "\n"
         output.append(cwd)
 
@@ -55,19 +54,23 @@ class Ls(Application):
     whose name start with '.'
     """
 
-    def exec(self, inp: List, output: List, args: List):
+    def exec(self, inp: List, output: deque, args: List):
         if len(args) == 0:
             path = os.getcwd()
         elif len(args) == 1:
-            path = args[0]  # PATH
+            path = args[0]
         else:  # > 1
             raise ValueError("Wrong number of command line arguments")
-        list_of_files = [
-            fname for fname in os.listdir(path) if not (fname.startswith("."))
-        ]
-        if len(list_of_files) > 0:  # TODO: this line may not be needed
+        try:
+            list_of_files = [
+                fname for fname in os.listdir(path)
+                if not (fname.startswith("."))
+            ]
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Could not find path '{path}'")
+        if len(list_of_files) > 0:
             output.append("\t".join(list_of_files))
-        output.append("\n")  # is this needed?
+        output.append("\n")
 
 
 class Cat(Application):
@@ -91,7 +94,8 @@ class Cat(Application):
                 content += read_content(file)
             output.append(content)
         else:  # == 0
-            output.extend(inp)
+            if len(inp) > 0:
+                output.extend(inp)
 
 
 class Echo(Application):
@@ -100,7 +104,7 @@ class Echo(Application):
     stdout.
     """
 
-    def exec(self, inp, output: deque, args: List):
+    def exec(self, inp: List, output: deque, args: List):
         string = " ".join(args)
         string += "\n"
         output.append(string)
@@ -196,8 +200,11 @@ class Grep(Application):
         if len(args) > 1:
             for fn in args[1:]:
                 named_files_to_search[fn] = ""
-                with open(fn, "r") as f:
-                    named_files_to_search[fn] += f.read()
+                try:
+                    with open(fn, "r") as f:
+                        named_files_to_search[fn] += f.read()
+                except FileNotFoundError:
+                    raise FileNotFoundError(f"Could not find file '{fn}'")
         else:
             named_files_to_search["stdin"] = inp
 
@@ -217,7 +224,8 @@ class Cut(Application):
 
     def exec(self, inp: List, output: deque, args: List):
         if args[0] != "-b":
-            raise ValueError("Please pass which bytes you would like with -b")
+            raise ValueError("Missing flag: \
+                Please specify bytes to extract with -b")
         range_strings = args[1].split(",")
         ranges = []
         for rs in range_strings:
@@ -238,8 +246,12 @@ class Cut(Application):
 
         if len(args) > 2:
             string_to_cut = ""
-            with open(args[2], "r") as f:
-                string_to_cut += f.read()
+            try:
+                filename = args[2]
+                with open(filename, "r") as f:
+                    string_to_cut += f.read()
+            except FileNotFoundError:
+                raise FileNotFoundError(f"Could not find file '{filename}'")
         else:
             string_to_cut = inp
 
@@ -313,8 +325,11 @@ class Uniq(Application):
             raise ValueError("Too many arguments")
         if filename:
             string_to_uniq = ""
-            with open(filename, "r") as f:
-                string_to_uniq += f.read()
+            try:
+                with open(filename, "r") as f:
+                    string_to_uniq += f.read()
+            except FileNotFoundError:
+                raise FileNotFoundError(f"Could not find file '{filename}'")
         rows_to_search = string_to_uniq.split("\n")
         current_row = None
         for i in range(len(rows_to_search) - 1):
@@ -349,7 +364,7 @@ class Sort(Application):
         elif len(args) == 2:
             option = args[0]
             if option != "-r":
-                raise ValueError("wrong flags")
+                raise ValueError("Wrong flags")
             else:
                 reverse = True
             file = args[1]
@@ -369,7 +384,7 @@ class Sort(Application):
                     content = "".join(content)
             output.append(content)
         except FileNotFoundError:
-            raise FileNotFoundError("File was not found")
+            raise FileNotFoundError(f"Could not find file '{file}'")
 
 
 class Mkdir(Application):
@@ -379,7 +394,7 @@ class Mkdir(Application):
 
     def exec(self, inp: List, output: deque, args: List):
         if len(args) < 2:
-            raise ValueError("wrong number of command line arguments")
+            raise ValueError("Wrong number of command line arguments")
         else:
             path = args[0]
             mode = args[1]
@@ -396,13 +411,13 @@ class Rmdir(Application):
 
     def exec(self, inp: List, output: deque, args: List):
         if len(args) < 1:
-            raise ValueError("wrong number of command line arguments")
+            raise ValueError("Wrong number of command line arguments")
         else:
             path = args[0]
             try:
                 os.rmdir(path)
             except OSError:
-                raise OSError(f"Directory {path} can not be removed.")
+                raise OSError(f"Directory {path} cannot be removed.")
 
 
 class Chown(Application):
@@ -412,7 +427,7 @@ class Chown(Application):
 
     def exec(self, inp: List, output: deque, args: List):
         if len(args) != 3:
-            raise ValueError("wrong number of command line arguments")
+            raise ValueError("Wrong number of command line arguments")
         if (args[1].isnumeric() is False or
                 args[2].isnumeric() is False):
             raise ValueError("UID or GID is not a number")
@@ -434,13 +449,13 @@ class Rm(Application):
 
     def exec(self, inp: List, output: deque, args: List):
         if len(args) != 1:
-            raise ValueError("wrong number of command line arguments")
+            raise ValueError("Wrong number of command line arguments")
         else:
             path = args[0]
             try:
                 os.remove(path)
             except OSError:
-                raise OSError(f"{path} could not be deleted.")
+                raise OSError(f"File {path} could not be removed.")
 
 
 class WCCounter:
@@ -474,15 +489,18 @@ class WCCounter:
 
     def _calc_file_stats(self, fn: str):
         d = {"l": 0, "w": 0, "c": 0, "m": 0, "L": 0}
-        with open(fn, 'r') as file:
-            d["c"] = os.path.getsize(fn)
-            for line in file:
-                d["l"] += 1
-                d["w"] += len(line.split())
-                d["m"] += len(line)
-                if len(line) > d["L"]:
-                    d["L"] = len(line)
-            return d
+        try:
+            with open(fn, 'r') as file:
+                d["c"] = os.path.getsize(fn)
+                for line in file:
+                    d["l"] += 1
+                    d["w"] += len(line.split())
+                    d["m"] += len(line)
+                    if len(line) > d["L"]:
+                        d["L"] = len(line)
+                return d
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Could not find file '{fn}'")
 
     def _add_total_count(self):
         for v in self.data.values():
@@ -493,7 +511,6 @@ class WCCounter:
     def _get_alignment(self):
         def calc_align(iterable):
             return max(map(lambda x: len(str(x)), iterable))
-
         align = dict()
         for k, v in self.data.items():
             align[k] = calc_align(v)
@@ -519,7 +536,7 @@ class WCCounter:
                 key = flag[1:]
                 s += f"{self.data[key][i]: >{align[key]}}"
             else:  # wrong flag
-                raise ValueError(f"Invalid flag: {flag}")
+                raise ValueError("Wrong flags")
             s += " " + self.filenames[i] + "\n"
             output += s
         return output

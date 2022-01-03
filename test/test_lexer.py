@@ -70,10 +70,11 @@ class TestLexer(unittest.TestCase):
         )
 
     def test_large_compound_command(self):
+        cmd_1 = "echo aaa > dir1/file2.txt"
+        cmd_2 = "cat dir1/file1.txt dir1/file2.txt | uniq -i"
+        cmd = cmd_1 + "; " + cmd_2
         self.assertEqual(
-            self.do_lex(
-                "echo aaa > dir1/file2.txt; \
-                cat dir1/file1.txt dir1/file2.txt | uniq -i"),
+            self.do_lex(cmd),
             ["echo", " ", "aaa", " ", ">", " ", "dir1/file2.txt", ";", " ",
                 "cat", " ", "dir1/file1.txt", " ", "dir1/file2.txt",
                 " ", "|", " ", "uniq", " ", "-i"]
