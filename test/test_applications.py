@@ -490,15 +490,6 @@ class TestCd(unittest.TestCase):
             out = deque()
             self.cd.exec(inp, out, args)
 
-    # def test_cd_correct(self):
-    #     dirname = self.dir.name
-    #     cwd = os.getcwd()
-    #     args = [dirname]
-    #     inp = []
-    #     out = deque()
-    #     self.cd.exec(inp, out, args)
-    #     self.assertEqual(os.getcwd(), cwd + "/dir")
-
 
 class TestCat(unittest.TestCase):
     def setUp(self):
