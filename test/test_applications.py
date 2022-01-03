@@ -586,9 +586,9 @@ class TestFind(unittest.TestCase):
         output = deque()
         cwd = os.getcwd()
         self.find.exec(args=["-name", "file"], inp=[], output=output)
-        output = deque_to_str(output).strip().split("\n")
+        output = set(deque_to_str(output).strip().split("\n"))
         correct = [self.file1.name, self.file2.name]
-        correct = list(map(lambda el: el.replace(cwd, '.', 1), correct))
+        correct = set(map(lambda el: el.replace(cwd, '.', 1), correct))
         self.assertEqual(output, correct)
 
 
